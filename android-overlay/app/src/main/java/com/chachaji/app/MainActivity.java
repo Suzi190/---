@@ -4,8 +4,6 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -26,15 +24,18 @@ import com.getcapacitor.BridgeActivity;
  * 状态栏和导航栏本身是隐藏的，需要时从屏幕边缘滑一下才会临时出来。
  * 页面顶部的标题栏靠原生传下去的刘海高度（--sat）自己避让摄像头，背景色仍然铺到刘海区。
  *
- * ── 键盘 ──
- * edge-to-edge 会让系统的 adjustResize 失效（窗口不再缩小），所以键盘只能自己处理。
- * 但必须用正确的方式：改 WebView 的【真实高度】，绝不可以用 setPadding。
- *   · setPadding 只裁剪绘制区域，WebView 内部的 Chromium viewport 尺寸不变，
- *     window.innerHeight 不变，页面里 position:fixed 的输入栏纹丝不动 —— 前几版就栽在这。
- *   · 改 layoutParams.height 会触发 onSizeChanged → viewport 真的变矮 → innerHeight 变小 →
- *     底部输入栏自动浮到键盘上沿。
- * 系统键盘动画期间 IME insets 是逐帧回调的，所以 WebView 高度也是逐帧变化的，
- * 输入栏和键盘同步升降，不会出现「键盘弹完再跳一下」。
+ * ── 键盘（这里绝对不要插手）──
+ * index.html 的第一段脚本会给 viewport 追加 interactive-widget=resizes-content，
+ * 意思是「键盘弹起时布局视口跟着缩小」。全屏（edge-to-edge）之后，Chromium 会自己读
+ * IME insets 并完成这次缩小，window.innerHeight / visualViewport.height 都会正确变小，
+ * 页面里 --active-viewport-height / --keyboard-bottom-overlap 那套逻辑随之生效。
+ *
+ * 所以原生这边只要不吭声就是对的。之前踩过两次坑，都记在这里免得再犯：
+ *   · setPadding(0,0,0,ime)：只裁剪绘制区域，Chromium viewport 不变 → innerHeight 不变 → 输入栏纹丝不动。
+ *   · 改 layoutParams.height：等于在 Chromium 已经扣掉键盘的基础上【再扣一次】，
+ *     聊天页容器只剩「全屏 − 2×键盘」，输入栏被顶到屏幕中间，底下空出一大块黑 ——
+ *     用户看到的「输入框飞上去 + 雷霆大黑边」就是这个。
+ * 原生现在只做两件事：全屏 + 把刘海高度/键盘开关告诉页面。
  */
 public class MainActivity extends BridgeActivity {
 
@@ -88,33 +89,12 @@ public class MainActivity extends BridgeActivity {
         ViewCompat.setOnApplyWindowInsetsListener(window.getDecorView(), (v, insets) -> {
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-            // 键盘高度 → 压缩 WebView 真实高度（逐帧跟随键盘动画）
-            resizeWebViewForIme(v, ime.bottom);
+            // 注意：这里【不要】改 WebView 的高度，键盘缩放由 Chromium 自己完成（见类注释）。
             // 刘海高度 / 键盘开合 → 同步给页面
             pushInsetVars(cut.top, cut.bottom, ime.bottom);
             return insets;
         });
         ViewCompat.requestApplyInsets(window.getDecorView());
-    }
-
-    /**
-     * 把 WebView 的真实高度压掉键盘高度。
-     *
-     * 每次 insets 回调都重新算一遍（不是只在键盘变化时），这样旋转屏幕、分屏、
-     * 从后台切回来之后高度都能自动修正，不会残留错误值。
-     */
-    private void resizeWebViewForIme(View decor, int imePx) {
-        if (webView == null) return;
-        int fullH = decor.getHeight();
-        if (fullH <= 0) {
-            fullH = getResources().getDisplayMetrics().heightPixels;
-        }
-        if (fullH <= 0) return;
-        int targetH = Math.max(1, fullH - imePx);
-        ViewGroup.LayoutParams lp = webView.getLayoutParams();
-        if (lp == null || lp.height == targetH) return;
-        lp.height = targetH;
-        webView.setLayoutParams(lp);
     }
 
     /** 真正把状态栏和导航栏藏起来；用户从屏幕边缘滑动时可以临时调出来 */

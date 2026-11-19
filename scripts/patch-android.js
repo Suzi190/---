@@ -196,9 +196,15 @@ if (!mainJava.includes('MixNativeBridgePlugin.class')) die('MainActivity 未注�
 if (!mainJava.includes('setDecorFitsSystemWindows')) die('MainActivity 缺少全屏逻辑');
 if (!mainJava.includes('setDecorFitsSystemWindows(window, false)')) die('MainActivity 必须用 edge-to-edge（setDecorFitsSystemWindows(false)），改成 true 刘海区会变成一条纯黑边');
 if (!mainJava.includes('hideSystemBars')) die('MainActivity 缺少隐藏系统栏逻辑');
-if (!mainJava.includes('resizeWebViewForIme')) die('MainActivity 缺少键盘高度处理逻辑（resizeWebViewForIme）');
-// 防回退：setPadding 不改变 WebView 内部 viewport，innerHeight 不变，输入栏根本不会动
-if (mainJava.includes('webView.setPadding')) die('MainActivity 不能用 setPadding 处理键盘，必须改 layoutParams.height');
+// 防回退：键盘缩放必须交给 Chromium 自己完成。
+// index.html 第一段脚本会往 viewport 里追加 interactive-widget=resizes-content，
+// 全屏之后 Chromium 自己读 IME insets 把布局视口缩掉一次 —— 这一次就够了。
+// 原生要是再插手（改 layoutParams.height 或 setPadding），就会在已缩的基础上再缩，
+// 聊天页容器只剩「全屏 − 2×键盘」，输入栏被顶到屏幕中间、下面空出一大块黑。
+if (/resizeWebViewForIme/.test(mainJava) || /layoutParams\s*\.\s*height\s*=/.test(mainJava)) {
+  die('MainActivity 不能自己压缩 WebView 高度：Chromium 已经按 interactive-widget 缩过一次，再缩就是双重扣减，输入栏会飞到屏幕中间');
+}
+if (mainJava.includes('webView.setPadding')) die('MainActivity 不能用 setPadding 处理键盘，它不改变 Chromium viewport');
 if (!mainJava.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) die('MainActivity 未设置系统栏临时滑出行为');
 
 const pluginJava = fs.readFileSync(path.join(ANDROID, MUST[1]), 'utf8');
