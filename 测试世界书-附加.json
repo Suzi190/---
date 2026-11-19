@@ -1,0 +1,46 @@
+{
+  "name": "附加测试世界书",
+  "entries": {
+    "0": {
+      "uid": 0,
+      "key": [
+        "梧桐巷",
+        "老城区"
+      ],
+      "comment": "梧桐巷",
+      "content": "梧桐巷在城西，整条街都是老房子，两边种着梧桐。夏天下暴雨时巷子会积水，走路要贴着墙根。",
+      "constant": true,
+      "disable": false
+    },
+    "1": {
+      "uid": 1,
+      "key": [
+        "修表铺"
+      ],
+      "comment": "修表铺",
+      "content": "修表铺的玻璃柜里摆着几十只旧表，大多没人来取。柜台上有台收音机，整天放着本地戏曲。",
+      "constant": false,
+      "disable": false
+    },
+    "2": {
+      "uid": 2,
+      "key": [
+        "雨"
+      ],
+      "comment": "这里的雨",
+      "content": "这座城的雨常从傍晚开始，一下就是一整夜。老城区排水不好，屋里的墙会返潮。",
+      "constant": false,
+      "disable": false
+    },
+    "3": {
+      "uid": 3,
+      "key": [
+        "不要的"
+      ],
+      "comment": "这条也关着",
+      "content": "看到这段说明过滤失效。",
+      "constant": false,
+      "disable": true
+    }
+  }
+}

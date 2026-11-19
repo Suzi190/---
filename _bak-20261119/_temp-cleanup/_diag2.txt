@@ -1,0 +1,33 @@
+chars=523841
+title=<title>叉叉�?/title> <script src="js/vendor/dexie.min.js"></script> <
+has_叉叉机=false
+has_主屏幕=true
+fffd=979
+--- U+FFFD 上下文 ---
+ontent");}}catch(_){}})();</script> <title>叉叉�?/title> <script src="js/vendor/dexie.min.js
+name="apple-mobile-web-app-title" content="叉叉�?> <meta name="mobile-web-app-capable" conte
+ss="mix-auth-logo" src="icon-192.png" alt="叉叉�?> <h1 class="mix-auth-title">叉叉�?/h1> <p cl
+png" alt="叉叉�?> <h1 class="mix-auth-title">叉叉�?/h1> <p class="mix-auth-subtitle" id="mix-a
+uth-subtitle" id="mix-auth-subtitle">登录以同步你的数�?/p> <div class="mix-auth-form"> <div id="mi
+-auth-input" type="password" placeholder="至少6�? autocomplete="current-password"> <button i
+nclick="AuthPage.togglePasswordVisibility()">�?/button> </div> <button id="mix-auth-submit
+ onclick="AuthPage.switchMode('register')">去注�?/button> </div> <div class="mix-auth-footer
+ </div> <div class="mix-auth-footer">数据安全存储于云�?/div> </div> </div> <div id="mix-splash-scr
+-subtitle" class="mix-splash-subtitle">欢迎使用叉叉�?/p> <div id="mix-splash-status" class="mix-
+v> <div class="beautify-section"> <h3>📱 主屏幕背�?/h3> <div class="beautify-item"> <label>上传背
+emoveBackground&&removeBackground('home')">🗑�?移除背景</button> </div> </div> <div class="bea
+Background&&removeBackground('countdown')">🗑�?移除背景</button> </div> </div> <div class="bea
+eBackground&&removeBackground('chatList')">🗑�?移除背景</button> </div> </div> <div class="bea
+/div> <div class="beautify-section"> <h3>通讯录页�?/h3> <div class="beautify-item"> <label>背景图
+eBackground&&removeBackground('contacts')">🗑�?移除背景</button> </div> </div> <div class="bea
+div> <div class="beautify-section"> <h3>QQ动态页�?/h3> <div class="beautify-item"> <label>全屏背
+moveBackground&&removeBackground('qzone')">🗑�?移除背景</button> </div> </div> <div class="bea
+--- 问号上下文 ---
+ntent");}}catch(_){}})();</script> <title>叉叉�?/title> <script src="js/vendor/dexie.min.js"
+ame="apple-mobile-web-app-title" content="叉叉�?> <meta name="mobile-web-app-capable" conten
+s="mix-auth-logo" src="icon-192.png" alt="叉叉�?> <h1 class="mix-auth-title">叉叉�?/h1> <p cla
+ng" alt="叉叉�?> <h1 class="mix-auth-title">叉叉�?/h1> <p class="mix-auth-subtitle" id="mix-au
+th-subtitle" id="mix-auth-subtitle">登录以同步你的数�?/p> <div class="mix-auth-form"> <div id="mix
+auth-input" type="password" placeholder="至少6�? autocomplete="current-password"> <button id
+onclick="AuthPage.switchMode('register')">去注�?/button> </div> <div class="mix-auth-footer"
+</div> <div class="mix-auth-footer">数据安全存储于云�?/div> </div> </div> <div id="mix-splash-scre

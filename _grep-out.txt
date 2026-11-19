@@ -1,0 +1,76 @@
+
+### app-dlsite.js  (21 hits)
+  @14515 … k.getRules();if(Array.isArray(rules))return rules.map(function(rule){return{id:String(rule.id||""),title:trimText(rule.title||"未命名世界书",60)||"未命名世界书",content:trimText(rule.content||"",3e3),category:trimText(rule.category||"未分类",40)||"未分类",enabled:!1!==rule.enabled}}).filter(function(rule){return rule.id&&rule.content})}}catch(e){
+  @14529 … f(Array.isArray(rules))return rules.map(function(rule){return{id:String(rule.id||""),title:trimText(rule.title||"未命名世界书",60)||"未命名世界书",content:trimText(rule.content||"",3e3),category:trimText(rule.category||"未分类",40)||"未分类",enabled:!1!==rule.enabled}}).filter(function(rule){return rule.id&&rule.content})}}catch(e){}return[]}func
+  … +19 more in this file
+
+### app-douban.js  (15 hits)
+  @20513 … romSnap.title,content:fromSnap.content,source:"snapshot",enabled:!1}:null}).filter(Boolean),refText=resolvedRefs.length?`\n\n【引用全局世界书】\n${resolvedRefs.map(r=>`- ${r.title}: ${r.content}`).join("\n")}`:"";return{base:base,refs:resolvedRefs,merged:`${base}${refText}`.trim()}}async function syncForumMembersWithLiveContacts(forum,op
+  @53559 … =String(rules.length)),!rules.length)return runtime.selectedWorldBookRefs.clear(),void(el.innerHTML='<div class="db-empty">暂未检测到全局世界书规则。</div>');const validIds=new Set(rules.map(r=>r.id));Array.from(runtime.selectedWorldBookRefs).forEach(id=>{validIds.has(id)||runtime.selectedWorldBookRefs.delete(id)}),el.innerHTML=rules.map(rul
+  … +13 more in this file
+
+### app-init.js  (18 hits)
+  @255881 … ingsTaskWithTimeout(()=>saveLocalWorldbook(chatCharId,{enabled:snapshot.worldbookEnabled,content:snapshot.worldbookContent}),"保存局部世界书",3500),console.log("✅ 局部世界书设置已保存到Dexie")):console.log("ℹ️ 跳过局部世界书保存（函数未定义）")}catch(worldbookError){console.error("⚠️ 保存局部世界书时出错（已忽略）:",worldbookError)}console.log("📸 视频通话形象预览元素:",!!videoCallPrevi
+  @255909 … LocalWorldbook(chatCharId,{enabled:snapshot.worldbookEnabled,content:snapshot.worldbookContent}),"保存局部世界书",3500),console.log("✅ 局部世界书设置已保存到Dexie")):console.log("ℹ️ 跳过局部世界书保存（函数未定义）")}catch(worldbookError){console.error("⚠️ 保存局部世界书时出错（已忽略）:",worldbookError)}console.log("📸 视频通话形象预览元素:",!!videoCallPreview),videoCallPreview&&consol
+  … +16 more in this file
+
+### app-lofter.js  (16 hits)
+  @7957 … rray.isArray(rules))return rules.map(function(rule){return{id:normalizeId(rule&&rule.id),title:trimText(rule&&rule.title,80)||"未命名世界书",content:trimText(rule&&rule.content,3e3),enabled:!(rule&&!1===rule.enabled)}}).filter(function(rule){return!(!rule.id||!rule.content)})}}catch(_){}return[]}function normalizeProfileWorldBookEntry
+  @29668 … ?"会":"不会明显暴露"),`角色 prompt：${charPrompt||"暂无 prompt，请按照角色主页签名和同人社区小号气质自然发挥。"}`,`角色主页签名：${trimText(profile.signature,60)||"暂无"}`,`局部世界书背景：${buildProfileWorldBookContext()}`,"","最近 QQ 聊天内容：",chatContext.transcript||"暂无","","请把最近聊天里最能触发心动或关系变化的部分，转成一篇原创恋爱小故事。","请直接返回 JSON。"].join("\n"),function(payload){if(!payload||"object"!=typeof
+  … +14 more in this file
+
+### app-observation.js  (22 hits)
+  @10657 … id??"").trim()||`global-worldbook-${index}`,title:String(source.title||source.name||source.label||source.heading||"").trim()||"未命名世界书",content:normalizeText(source.content||source.text||source.prompt||source.description||source.body||source.value||""),category:String(source.category||source.group||source.folder||"").trim(),enabl
+  @12467 … tObservationWorldBookPrompt(station){const entries=getEnabledObservationWorldBookEntries(station);return entries.length?["【当前观测站局部世界书】",entries.map(entry=>`[${entry.title}]\n${entry.content}`).join("\n\n"),"以上局部世界书用于补充角色关系、环境和氛围；观测站仍然是角色连接另一侧 user 的生活媒介。生成内容要自然吸收可用部分，但不要机械复述原文。"].join("\n"):""}function getObservationWorldBookCou
+  … +20 more in this file
+
+### builtin-worldbook.js  (1 hits)
+  @2279 … 知道你今天要做 X"。',"","---","",'char 可以表达想做什么、想象一种可能(并明确说这是想象 / 猜测),但绝不把"没发生过的""没记录的"说成"发生过的""已经定下的"。'].join("\n")+"\n\n----\n\n"+["# 生图世界书(内置 · 全局 · 仅生图功能生效)","","这份内容只在 char 写 [图片:xxx] 时约束 xxx 描述的方向。平时正常对话不需要遵守。","","下文中 char 指角色本身,user 指对话另一边的用户。","","## 核心方向","","char 写 [图片:xxx] 时,目标是符合 char 人设的真实随手拍:","","- 符合 char 人设:温柔的 char 拍温
+
+### db-manager-full.js  (6 hits)
+  @6225 … ",worldBookEntries:"++id, bookId, userId, title, updatedAt, [bookId+userId]"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本19，新增世界书相关表..."),console.log("✅ 数据库版本19升级完成！")}),db.version(20).stores({settings:"id, userId, settingType, timestamp",media:"id, userId, mediaType, timestamp",chatSettings:"id, userId, charId, timestamp",u
+  @82203 … rn await db.worldBooks.where("userId").equals(userId).sortBy("updatedAt")}catch(e){return console.error("❌ [WorldBookManager] 获取所有世界书失败:",e),[]}},async saveBook(bookData){try{const userId=PersonaManager?.getCurrentPersona()?.id||"1",dataToSave={...bookData,userId:userId,updatedAt:Date.now()},id=await db.worldBooks.put(dataToSave
+  … +4 more in this file
+
+### global-backup-v3.js  (3 hits)
+  @661 … Q动态",required:!0,description:"QQ 动态、留言板和相关数据"},{id:"sms",label:"短信记录",required:!0,description:"短信会话与短信消息"},{id:"worldBook",label:"世界书",required:!0,description:"全局世界书与相关规则"},{id:"ao3",label:"AO3",required:!1,description:"AO3 收藏、自定义草稿与缓存"},{id:"jjwxc",label:"晋江",required:!1,description:"晋江收藏、章节缓存与推荐内容"},{id:"lofter",label:"Lofter"
+  @693 …  动态、留言板和相关数据"},{id:"sms",label:"短信记录",required:!0,description:"短信会话与短信消息"},{id:"worldBook",label:"世界书",required:!0,description:"全局世界书与相关规则"},{id:"ao3",label:"AO3",required:!1,description:"AO3 收藏、自定义草稿与缓存"},{id:"jjwxc",label:"晋江",required:!1,description:"晋江收藏、章节缓存与推荐内容"},{id:"lofter",label:"Lofter",required:!1,description:"Lofter
+  … +1 more in this file
+
+### lazy-loader.js  (1 hits)
+  @929 … 60528r1",label:"事件系统"},{src:"js/managers-apps.js?v=20260413r4",label:"首页应用"},{src:"js/builtin-worldbook.js?v=20260607r3",label:"内置世界书(活人感+事实边界+生图)"},{src:"js/managers-offline.js?v=20260516r1",label:"线下功能"},{src:"js/offline-sync-default-on-patch.js?v=20260601r2",label:"离线自主活动修复(同步默认开+补翻译)"},{src:"js/native-bridge.js?v=20260520r4"
+
+### managers-apps.js  (7 hits)
+  @178539 … 2 100%);">\n                            <div style="font-size: 0.96rem; font-weight: 700; color: #111; letter-spacing: 0.01em;">导入世界书</div>\n                            <div style="margin-top: 8px; font-size: 0.74rem; color: #666; line-height: 1.5; word-break: break-all;">\n                                文件：${safeFileName}\n   
+  @182424 … d(a),a.click(),document.body.removeChild(a),URL.revokeObjectURL(url),"function"==typeof showToast?showToast(`已导出 ${rules.length} 条世界书`):alert(`已导出 ${rules.length} 条世界书`)}function importRules(input){const file=input?.files?.[0];if(!file)return;const reader=new FileReader;reader.onload=async()=>{try{const cleanText=String(reader.r
+  … +5 more in this file
+
+### managers-browser.js  (13 hits)
+  @456 … orldBook.getEntries(),enabledCount=entries.filter(e=>e.enabled).length;enabledCount>0?(statusEl.textContent=`已启用 ${enabledCount} 条世界书`,statusEl.style.color="#667eea"):entries.length>0?(statusEl.textContent=`${entries.length} 条世界书（全部禁用）`,statusEl.style.color="#999"):(statusEl.textContent="点击添加世界书设定",statusEl.style.color="#999")}f
+  @552 … textContent=`已启用 ${enabledCount} 条世界书`,statusEl.style.color="#667eea"):entries.length>0?(statusEl.textContent=`${entries.length} 条世界书（全部禁用）`,statusEl.style.color="#999"):(statusEl.textContent="点击添加世界书设定",statusEl.style.color="#999")}function openBrowserWorldBook(){const modal=document.getElementById("browser-worldbook-modal");re
+  … +11 more in this file
+
+### managers-extra.js  (18 hits)
+  @357106 … groupChats:"群聊",offlineMessages:"线下消息",groupOffline:"群聊线下",mails:"邮件",questionnaires:"问卷",questionnaireAnswers:"问卷答卷",worldBooks:"世界书",worldBookEntries:"世界书词条",htmlGeneratorDocuments:"HTML文档库",systemRuns:"系统流程",systemNodes:"系统节点",offlineSessions:"线下会话",exportData:"导出数据"}[tableName]||tableName}function buildDexieContactNameResolv
+  @357129 … Messages:"线下消息",groupOffline:"群聊线下",mails:"邮件",questionnaires:"问卷",questionnaireAnswers:"问卷答卷",worldBooks:"世界书",worldBookEntries:"世界书词条",htmlGeneratorDocuments:"HTML文档库",systemRuns:"系统流程",systemNodes:"系统节点",offlineSessions:"线下会话",exportData:"导出数据"}[tableName]||tableName}function buildDexieContactNameResolver(){const idToName=new
+  … +16 more in this file
+
+### managers-group.js  (28 hits)
+  @144615 … ing||[]).map(e=>[String(e.id),e.content,e.enabled]))&&saveGroupLocalWorldbookEntries(groupId,next)}catch(e){console.warn("同步群聊记忆互通世界书失败:",e)}}async function getGroupLongTermMemoryPrompt(groupId,targetMembers){if(!groupId||"function"==typeof getGroupMemoryShareEnabled&&!getGroupMemoryShareEnabled(groupId))return"";if("undefined"=
+  @157075 … tRoleCount}\n当前话题：${currentTopic||"日常聊天"}\n${groupBackground?`群聊背景：${groupBackground}`:"群聊背景：（未设置）"}\n${groupWorldBookPrompt?`群聊局部世界书背景：\n${groupWorldBookPrompt}`:"群聊局部世界书背景：（未设置）"}\n${groupMemoryText?`【群聊长期记忆】\n${groupMemoryText}\n`:""}\n${groupTimePerceptionText?`${groupTimePerceptionText}`:""}\n\n【最近的聊天记录】\n${messageHistory||
+  … +26 more in this file
+
+### managers-qzone.js  (8 hits)
+  @98806 … oneWorldBookList()},getEnabledPrompt(){const rules=this.getRules().filter(r=>r.enabled);return 0===rules.length?"":"\n【QQ空间动态背景设定/世界书】\n"+rules.map(r=>{let content=r.content,name=r.name;if(r.isGlobalRef&&r.globalRefId){const globalRule=("undefined"!=typeof WorldBook&&WorldBook.getRules?WorldBook.getRules():[]).find(gr=>gr.id==r.
+  @99949 … BookManager.getRules().filter(e=>e.isGlobalRef&&e.globalRefId).map(e=>e.globalRefId);if(select.innerHTML='<option value="">-- 选择全局世界书 --</option>',0===globalRules.length){const opt=document.createElement("option");return opt.value="",opt.textContent="暂无全局世界书（请先在世界书应用中添加）",opt.disabled=!0,void select.appendChild(opt)}globalRules.
+  … +6 more in this file
+
+### qzone-stranger-drama.js  (6 hits)
+  @13179 … orldBookKeywords(limit=6){const prompt=getQzoneWorldBookPromptText(1200);if(!prompt)return[];const stopPattern=/(qq空间|动态背景设定|背景设定|世界书|局部世界书|规则|引用|当前空间|当前背景)/i,titleHits=Array.from(prompt.matchAll(/\[([^\]]+)\]/g)).map(match=>String(match?.[1]||"").trim()),wordHits=(prompt.match(/[\u4e00-\u9fa5A-Za-z]{2,10}/g)||[]).map(word=>Stri
+  @13185 … okKeywords(limit=6){const prompt=getQzoneWorldBookPromptText(1200);if(!prompt)return[];const stopPattern=/(qq空间|动态背景设定|背景设定|世界书|局部世界书|规则|引用|当前空间|当前背景)/i,titleHits=Array.from(prompt.matchAll(/\[([^\]]+)\]/g)).map(match=>String(match?.[1]||"").trim()),wordHits=(prompt.match(/[\u4e00-\u9fa5A-Za-z]{2,10}/g)||[]).map(word=>String(wor
+  … +4 more in this file
+
+### ui-features.js  (1 hits)
+  @149839 … ll;charWorldBook&&charWorldBook.enabled&&charWorldBook.content&&(worldBookContent+=charWorldBook.content)}catch(e){console.log("获取世界书失败:",e)}const charName=char?.remark||char?.name||"角色",userName=persona?.name||"User",includeNpc=!1!==options.includeNpc,npcSourceList=Array.isArray(options.activeNpcs)?options.activeNpcs:OfflineMod
+
+== total 184 hits in 16 files ==

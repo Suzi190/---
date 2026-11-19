@@ -1,0 +1,1 @@
+window.__charInnerVoiceInstalled||(window.__charInnerVoiceInstalled=!0);

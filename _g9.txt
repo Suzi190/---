@@ -1,0 +1,5 @@
+
+### managers-features.js  (1 hits)
+  @88134 … .error("创建角色失败:",error),alert("创建失败："+error.message)}}catch(error){console.error("保存角色总体失败:",error),alert("保存失败："+error.message)}}function showAddFriendModal(){currentEditingCharId=null,document.getElementById("new-char-name").value="",syncPersonaGenderField("new-char-gender","new-char-gender-custom","none"),document.getElementB
+
+== total 1 hits in 1 files ==

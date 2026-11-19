@@ -1,0 +1,29 @@
+
+### app-observation.js  (3 hits)
+  @11130 … ookApi(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules)return WorldBook}catch(_){}try{if(window.WorldBook&&"function"==typeof window.WorldBook.getRules)return window.WorldBook}catch(_){}return null}();if(worldBookApi){const apiRules=normalizeRules(worldBookApi.getRules());if(apiRules.leng
+  @11167 … orldBook&&WorldBook&&"function"==typeof WorldBook.getRules)return WorldBook}catch(_){}try{if(window.WorldBook&&"function"==typeof window.WorldBook.getRules)return window.WorldBook}catch(_){}return null}();if(worldBookApi){const apiRules=normalizeRules(worldBookApi.getRules());if(apiRules.length)return apiRules}}catch(_){}try{ret
+  … +1 more in this file
+
+### db-manager-full.js  (2 hits)
+  @81969 … ){return console.error("❌ [UserBeautySettings] 加载失败:",e),null}}};window.UserBeautySettingsManager=UserBeautySettingsManager;const WorldBookManager={async getAllBooks(){try{const userId=PersonaManager?.getCurrentPersona()?.id||"1";return await db.worldBooks.where("userId").equals(userId).sortBy("updatedAt")}catch(e){return consol
+  @83851 … return await db.worldBookEntries.get(entryId)}catch(e){return console.error(`❌ [WorldBookManager] 获取条目 ${entryId} 失败:`,e),null}}};window.WorldBookManager=WorldBookManager;let dbInitialized=!1;const notifyDbReady=(success,reason="")=>{try{window.dispatchEvent(new CustomEvent("mix:db-ready",{detail:{success:Boolean(success),reason
+
+### managers-apps.js  (1 hits)
+  @33779 … }function selectSticker(url,description){currentPickerCallback&&currentPickerCallback(url,description),closeStickerPicker()}const WorldBook={storageKey:"ios-world-book-rules",getRules(){try{const saved=SyncStorage.getItem(this.storageKey);return safeJsonParse(saved,[])}catch(e){return[]}},saveRules(rules){SyncStorage.setItem(thi
+
+### managers-browser.js  (1 hits)
+  @22698 … |!charId)return;const data=currentSiteData[siteType];Array.isArray(data)&&SiteContentCache.set(siteType,charId,data)}const BrowserWorldBook={storageKey:"browser-world-book-entries",getEntries(){try{const saved=SyncStorage.getItem(this.storageKey);return safeJsonParse(saved,[])}catch(e){return[]}},saveEntries(entries){SyncStorage
+
+### managers-extra.js  (1 hits)
+  @396706 … oin("\n"),cfg=AIConfig?.get();if(!cfg||!cfg.apiKey||!cfg.proxyUrl)return this.generateDefaultFeed(char,recentMessages);const qzoneWorldBook=QzoneWorldBookManager?.getEnabledPrompt()||"",prompt=`你正在执行“QQ空间动态生成”任务，不是聊天自动回复任务。\n\n【角色名】\n${char.name}\n\n【角色人设】\n${personaPrompt||"未提供详细人设，请根据角色既有语气自然发挥"}\n\n${qzoneWorldBook}\n\n【最近的聊天
+
+### managers-features.js  (1 hits)
+  @132917 … 与角色的双人叙事（如 AO3/同人文/CP剧情），默认仅允许这两人出场，不得凭空加入第三者，除非用户明确要求。",finalMessages.unshift({role:"system",content:personaPrompt})}let combinedWorldBook="";if(worldBookPrompt&&(combinedWorldBook+=`【全局世界设定】\n${worldBookPrompt}\n\n`),!skipAutoWorldBookContext&&"undefined"!=typeof currentChatCharId&&currentChatCharId){const localWb="function"==
+
+### managers-qzone.js  (1 hits)
+  @97910 … ER),clearQzoneFullscreenBg(),clearQzoneAnimatedBg(),showQzoneCover(),loadQzoneSettings(),showQzoneToast("✅ 已恢复所有默认背景")}const QzoneWorldBookManager={storageKey:"qzone-world-book",getRules(){return JSON.parse(SyncStorage.getItem(this.storageKey)||"[]")},saveRules(rules){SyncStorage.setItem(this.storageKey,JSON.stringify(rules))},a
+
+### ui-features.js  (1 hits)
+  @149626 … Prompt){const _gw=WorldBook.getEnabledRulesPrompt();_gw&&String(_gw).trim()&&(worldBookContent+="全局世界设定：\n"+_gw+"\n\n")}const charWorldBook="function"==typeof getLocalWorldbook?getLocalWorldbook(resolvedCharId):null;charWorldBook&&charWorldBook.enabled&&charWorldBook.content&&(worldBookContent+=charWorldBook.content)}catch(e){co
+
+== total 11 hits in 8 files ==

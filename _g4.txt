@@ -1,0 +1,8 @@
+
+### app-init.js  (4 hits)
+  @563926 … oming-call-modal","none"),addCallMessageToChat("system","你已拒接",getTimeStr()),currentChatCharId===callCharId&&openChat(callCharId)}function getLocalWorldbookEntries(charId){return JSON.parse(SyncStorage.getItem(`local-worldbook-entries-${charId}`)||"[]")}function saveLocalWorldbookEntries(charId,entries){SyncStorage.setItem(`loca
+  @564050 … arId)}function getLocalWorldbookEntries(charId){return JSON.parse(SyncStorage.getItem(`local-worldbook-entries-${charId}`)||"[]")}function saveLocalWorldbookEntries(charId,entries){SyncStorage.setItem(`local-worldbook-entries-${charId}`,JSON.stringify(entries))}function renderLocalWorldbookList(){if(!currentChatCharId)return;con
+  @569689 … ):[]).find(r=>r.id==entry.globalRefId);globalRule&&(content=globalRule.content)}result+=`· ${entry.title}: ${content}\n`}),result}function getLocalWorldbook(charId){const enabledEntries=getLocalWorldbookEntries(charId).filter(e=>e.enabled);return enabledEntries.length>0?{enabled:!0,content:enabledEntries.map(e=>{let content=e.co
+  … +1 more in this file
+
+== total 4 hits in 1 files ==

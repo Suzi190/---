@@ -1,0 +1,9 @@
+
+### app-init.js  (20 hits)
+  @32458 … eason:hint.reason||hint.oldHint,invalidatedAt:nowAt}),best.__invalidated=!0,marked++}catch(_){}}return marked}catch(_){return 0}},getMemoryRecencyBonus(memory,options={}){try{const memoryTs=this.getMemoryOrderValue(memory,0);if(!(Number.isFinite(memoryTs)&&memoryTs>0))return 0;const nowTs=Number.isFinite(Number(options?.now))?Nu
+  @34737 … =4&&normalizedContent.includes(normalizedFocusText)&&(score+=18),asksDate&&Number.isFinite(explicitDate)&&(score+=16),score+=this.getMemoryRecencyBonus(memory,options),"superseded"===String(memory?.status||"").trim().toLowerCase()&&(score=Math.round(35*score/100)),(()=>{try{score-=Math.round(getMemoryForgettingValue(memory)*.12)
+  @34900 … ons),"superseded"===String(memory?.status||"").trim().toLowerCase()&&(score=Math.round(35*score/100)),(()=>{try{score-=Math.round(getMemoryForgettingValue(memory)*.12)}catch(_){}})(),/(生日|名字|身份|约定|承诺|喜欢|讨厌|第一次|纪念日)/.test(content)&&(score+=8),score},getMemoryAppPromptMemories(memories=[],contextMessages=[],options={}){const sourc
+  @135411 … pUserName();return String(value||"").replace(/\bUser\b/g,userName).replace(/\buser\b/g,userName).replace(/用户/g,userName)}function getMemoryImportanceValue(memory){return clampMemoryPercent(MemoryManager?.getMemoryImportanceScore?.(memory,60),60)}function getMemoryAgeDays(memory){const rawTime=memory?.eventTime??memory?.timestamp
+  … +16 more in this file
+
+== total 20 hits in 1 files ==

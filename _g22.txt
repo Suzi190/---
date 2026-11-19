@@ -1,0 +1,5 @@
+
+### app-init.js  (1 hits)
+  @136077 … r=getMemoryTier(memory);if("carved"===tier)return 0;const importance=getMemoryImportanceValue(memory),lastAccessTs=Number(memory?.lastAccessAt)||0,ageDays=getMemoryAgeDays(lastAccessTs>0?{...memory,eventTime:lastAccessTs}:memory),ageWeight="fading"===tier?2.2:.8,ageLimit="fading"===tier?46:24;return clampMemoryPercent(("fading"=
+
+== total 1 hits in 1 files ==

@@ -1,0 +1,56 @@
+
+### app-baitai.js  (2 hits)
+  @6230 … sg||"").trim()||"操作失败";try{if("function"==typeof window.showQzoneToast)return void window.showQzoneToast(m);if("function"==typeof window.showToast)return void window.showToast(m)}catch(e){}try{alert(m)}catch(e){}}function clearTopBubbleTimer(){topBubbleTimer&&(clearTimeout(topBubbleTimer),topBubbleTimer=null)}function renderTopB
+  @6259 … ("function"==typeof window.showQzoneToast)return void window.showQzoneToast(m);if("function"==typeof window.showToast)return void window.showToast(m)}catch(e){}try{alert(m)}catch(e){}}function clearTopBubbleTimer(){topBubbleTimer&&(clearTimeout(topBubbleTimer),topBubbleTimer=null)}function renderTopBubble(){if(!refs.topBubble)re
+
+### backup-export-router.js  (2 hits)
+  @972 … n canUseStreamExportOnWeb(){return!isNativeApp()&&"function"==typeof Worker}function notify(message){message&&("function"!=typeof window.showToast?"function"!=typeof window.showQzoneToast?console.log(message):window.showQzoneToast(message):window.showToast(message))}function loadScript(src){return"function"==typeof window.ensure
+  @1082 … ("function"!=typeof window.showToast?"function"!=typeof window.showQzoneToast?console.log(message):window.showQzoneToast(message):window.showToast(message))}function loadScript(src){return"function"==typeof window.ensureLazyScript?window.ensureLazyScript(src):(pendingManualLoads[src]||(pendingManualLoads[src]=new Promise(functio
+
+### baitai-novel.js  (2 hits)
+  @2723 … msg,120)||"操作失败";try{if("function"==typeof window.showQzoneToast)return void window.showQzoneToast(safeMsg);if("function"==typeof window.showToast)return void window.showToast(safeMsg)}catch(e){}try{alert(safeMsg)}catch(e){}}function getSyncStorage(){try{if(window.SyncStorage&&"function"==typeof window.SyncStorage.getItem)return
+  @2752 … tion"==typeof window.showQzoneToast)return void window.showQzoneToast(safeMsg);if("function"==typeof window.showToast)return void window.showToast(safeMsg)}catch(e){}try{alert(safeMsg)}catch(e){}}function getSyncStorage(){try{if(window.SyncStorage&&"function"==typeof window.SyncStorage.getItem)return window.SyncStorage}catch(e){
+
+### chat-history-mutation-patch.js  (1 hits)
+  @10073 … derChatsList&&renderChatsList(),"function"==typeof window.openChat&&await openChat(charId,{partialRefresh:!0}),"function"==typeof window.showToast&&showToast("已回溯，删除了 "+deleteCount+" 条消息")}}else alert("消息不存在")};return patched.__chatHistoryMutationPatched=!0,window.rollbackToMessage=patched,!0}(),showRegenerateReady=function patc
+
+### global-backup-stream.js  (8 hits)
+  @5295 … iveBridgeHelper.saveBlobToDownloads(blob,fileName,blob?.type||"application/octet-stream");if(nativeResult){try{"function"==typeof window.showToast&&setTimeout(()=>window.showToast("✅ 已保存到下载目录\n文件管理器没显示？请下拉刷新或重启文件管理器"),200)}catch(_){}return nativeResult}}catch(error){console.warn("原生下载目录写入失败，降级为浏览器下载:",error)}const url=URL.create
+  @5328 … ds(blob,fileName,blob?.type||"application/octet-stream");if(nativeResult){try{"function"==typeof window.showToast&&setTimeout(()=>window.showToast("✅ 已保存到下载目录\n文件管理器没显示？请下拉刷新或重启文件管理器"),200)}catch(_){}return nativeResult}}catch(error){console.warn("原生下载目录写入失败，降级为浏览器下载:",error)}const url=URL.createObjectURL(blob);try{const anchor=
+  … +6 more in this file
+
+### group-offline-auto-summary.js  (8 hits)
+  @13407 … eRun:!0});result&&"number"==typeof result.saved&&result.saved>0?(forceBtn.textContent="已总结 "+result.saved+" 条","function"==typeof window.showToast&&window.showToast("✅ 群聊总结完成，已添加 "+result.saved+" 条记忆")):result&&result.skipped?(forceBtn.textContent="无新记忆","function"==typeof window.showToast&&window.showToast("已跳过："+result.skipped
+  @13425 … "number"==typeof result.saved&&result.saved>0?(forceBtn.textContent="已总结 "+result.saved+" 条","function"==typeof window.showToast&&window.showToast("✅ 群聊总结完成，已添加 "+result.saved+" 条记忆")):result&&result.skipped?(forceBtn.textContent="无新记忆","function"==typeof window.showToast&&window.showToast("已跳过："+result.skipped)):result&&result.
+  … +6 more in this file
+
+### image-gen.js  (4 hits)
+  @19493 … led=!1,fetchBtn.textContent=originalText}}),saveBtn.addEventListener("click",()=>{Config.save(readUI(section)),"function"==typeof window.showToast?window.showToast("✅ 生图配置已保存"):(saveBtn.textContent="已保存",setTimeout(()=>{saveBtn.textContent="保存生图配置"},1200))});const scopeRadios=section.querySelectorAll("input[name='image-gen-style
+  @19510 … extContent=originalText}}),saveBtn.addEventListener("click",()=>{Config.save(readUI(section)),"function"==typeof window.showToast?window.showToast("✅ 生图配置已保存"):(saveBtn.textContent="已保存",setTimeout(()=>{saveBtn.textContent="保存生图配置"},1200))});const scopeRadios=section.querySelectorAll("input[name='image-gen-style-scope']"),charWr
+  … +2 more in this file
+
+### jjwxc-regenerate-patch.js  (3 hits)
+  @20651 … "&#39;")}function safeJsonParse(text,fallbackValue){try{return text?JSON.parse(text):fallbackValue}catch(_){return fallbackValue}}function showToast(message){if(message)if("function"!=typeof window.showQzoneToast)if("function"!=typeof window.showToast)try{console.log(message)}catch(_){}else window.showToast(message);else window.
+  @20756 … _){return fallbackValue}}function showToast(message){if(message)if("function"!=typeof window.showQzoneToast)if("function"!=typeof window.showToast)try{console.log(message)}catch(_){}else window.showToast(message);else window.showQzoneToast(message)}function isVisible(el){return!(!el||el.style&&"none"===el.style.display||"none"==
+  … +1 more in this file
+
+### offline-plot-guidance-patch.js  (4 hits)
+  @5571 … trigger(hint,loadingOpts)).catch(function(err){console.warn("offline plot guidance trigger failed:",err)})}else"function"==typeof window.showToast&&window.showToast((forGroup?"群":"")+"线下 AI 调用入口不可用，请稍后重试")}else"function"==typeof window.showToast&&window.showToast("请先写一点剧情引导哦")}(modal,forGroup)}),setTimeout(function(){var el=docu
+  @5589 … ngOpts)).catch(function(err){console.warn("offline plot guidance trigger failed:",err)})}else"function"==typeof window.showToast&&window.showToast((forGroup?"群":"")+"线下 AI 调用入口不可用，请稍后重试")}else"function"==typeof window.showToast&&window.showToast("请先写一点剧情引导哦")}(modal,forGroup)}),setTimeout(function(){var el=document.getElementByI
+  … +2 more in this file
+
+### rewind-quick-commands-patch.js  (2 hits)
+  @2542 … k-commands:"+normalizedScope,JSON.stringify(nextCommands)),nextCommands}function showNotice(message){message&&("function"!=typeof window.showToast?console.log(message):window.showToast(message))}function dispatchTextareaInput(textarea){if(textarea){try{return void textarea.dispatchEvent(new Event("input",{bubbles:!0}))}catch(_){
+  @2580 … ngify(nextCommands)),nextCommands}function showNotice(message){message&&("function"!=typeof window.showToast?console.log(message):window.showToast(message))}function dispatchTextareaInput(textarea){if(textarea){try{return void textarea.dispatchEvent(new Event("input",{bubbles:!0}))}catch(_){}try{var fallbackEvent=document.create
+
+### ui-features.js  (1 hits)
+  @0 … function showToast(message,duration=2e3){let toast=document.getElementById("global-toast");toast||(toast=document.createElement("div"),toast.id="global-toast",toast.style.cssText="\n                  
+
+### utils-core.js  (2 hits)
+  @793 … tifyCssPresetAction(message){const text=String(message||"").trim();if(text){try{if("undefined"!=typeof window&&"function"==typeof window.showToast)return void window.showToast(text)}catch(e){}try{console.log(text)}catch(e){}}}function getCssPresetLibraryStorageKey(libraryKey){return`css-preset-library-${String(libraryKey||"").tr
+  @822 … const text=String(message||"").trim();if(text){try{if("undefined"!=typeof window&&"function"==typeof window.showToast)return void window.showToast(text)}catch(e){}try{console.log(text)}catch(e){}}}function getCssPresetLibraryStorageKey(libraryKey){return`css-preset-library-${String(libraryKey||"").trim()}`}function parseCssPrese
+
+### xhs-link-parser.js  (1 hits)
+  @16897 … n)):(needFetch&&showToast("⚠️ 链接读取失败，已跳过","warn",2600),messages)}catch(e){return log("注入异常（已忽略，不影响正常回复）:",e&&e.message),messages}}function showToast(text,kind,autoHideMs){try{if("undefined"==typeof document||!document.body)return;var id="mix-xhs-toast",el=document.getElementById(id);el||((el=document.createElement("div")).id=id,
+
+== total 40 hits in 13 files ==

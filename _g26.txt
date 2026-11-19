@@ -1,0 +1,16 @@
+
+### app-init.js  (5 hits)
+  @18986 …  保存记忆失败:",e),null}},_scheduleEmbedding(memoryId,content){try{if(!memoryId||!content)return;if("undefined"==typeof window||!window.MemoryVector)return;Promise.resolve().then(async()=>{try{const vec=await window.MemoryVector.getEmbedding(content);vec&&Array.isArray(vec)&&vec.length>0&&await db.longTermMemories.update(memoryId,{emb
+  @19066 … ent)return;if("undefined"==typeof window||!window.MemoryVector)return;Promise.resolve().then(async()=>{try{const vec=await window.MemoryVector.getEmbedding(content);vec&&Array.isArray(vec)&&vec.length>0&&await db.longTermMemories.update(memoryId,{embedding:vec,embeddedAt:Date.now()})}catch(_){}})}catch(_){}},getMemoryImportanceS
+  @101499 … seBonus+preferenceBonus+manualBonus+exactPhraseBonus}}).filter(Boolean);let vectorBoosts=[];if("undefined"!=typeof window&&window.MemoryVector)try{const queryText=focusText||keywords.join(" "),queryVec=queryText?await Promise.race([window.MemoryVector.getEmbedding(queryText),new Promise(resolve=>setTimeout(()=>resolve(null),2500
+  @101608 … ypeof window&&window.MemoryVector)try{const queryText=focusText||keywords.join(" "),queryVec=queryText?await Promise.race([window.MemoryVector.getEmbedding(queryText),new Promise(resolve=>setTimeout(()=>resolve(null),2500))]).catch(()=>null):null;if(queryVec){const existingIds=new Set(scored.map(s=>s.memory&&s.memory.id));for(co
+  … +1 more in this file
+
+### memory-vector.js  (5 hits)
+  @52 … !function(){if(!("undefined"==typeof window||window.MemoryVector&&window.MemoryVector.__installed)){var embeddingCache=new Map,apiAvailability={checked:!1,available:!1,lastCheckAt:0},backfillState={running:!1,processed:0,lastRunAt:0};window.MemoryVecto
+  @73 … !function(){if(!("undefined"==typeof window||window.MemoryVector&&window.MemoryVector.__installed)){var embeddingCache=new Map,apiAvailability={checked:!1,available:!1,lastCheckAt:0},backfillState={running:!1,processed:0,lastRunAt:0};window.MemoryVector={__installed:!0,__v
+  @241 … ngCache=new Map,apiAvailability={checked:!1,available:!1,lastCheckAt:0},backfillState={running:!1,processed:0,lastRunAt:0};window.MemoryVector={__installed:!0,__version:"20260524r1",getEmbedding:getEmbedding,cosineSimilarity:cosineSimilarity,searchRelevant:async function searchRelevant(memories,queryText,topK){var k=Math.max(1,M
+  @353 … stRunAt:0};window.MemoryVector={__installed:!0,__version:"20260524r1",getEmbedding:getEmbedding,cosineSimilarity:cosineSimilarity,searchRelevant:async function searchRelevant(memories,queryText,topK){var k=Math.max(1,Math.min(50,Number(topK)||8));if(!Array.isArray(memories)||0===memories.length)return[];var queryVec=await getEmb
+  … +1 more in this file
+
+== total 10 hits in 2 files ==

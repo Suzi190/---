@@ -1,0 +1,34 @@
+
+### app-dlsite.js  (1 hits)
+  @9490 … imText(subtitle,60);return!text||text.length<5||!(!cue||"sfx"===cue.type||text!==getAmbienceMeta(source.ambience).hint)||!!/^(?:无|待补|未填写|氛围底噪|动作提示|演绎方向|line|sfx|试听片段\s*\d*|完整音频\s*\d*)$/i.test(text)||!!/^\d+\s*字\s*[:：]/.test(text)||/[\/｜|]/.test(text)&&/(?:声音|呼吸|心跳|摩擦|液体|脚步|软木塞|玻璃)/.test(text)}(nextCue.subtitle,nextCue,source)?fu
+
+### app-init.js  (7 hits)
+  @38393 … ePromptTag(memory),layerLabel={overview:"长期概览",relation:"关系状态",profile:"用户画像",preference:"偏好习惯",state:"内在状态",promise:"约定承诺",goal:"未完成目标",fact:"事实信息",event:"事件记忆",summary:"阶段摘要"}[this.getMemoryLayer(memory)]||memory.type||"moment",sourceLabel="manual"===String(memory?.source||"").trim().toLowerCase()?"记忆应用手动记录":"auto"===String(me
+  @40534 … info:"关键信息",emotion:"情绪变化",timeline:"时间线",relationship:"关系状态",relation:"关系状态",profile:"用户画像",preference:"偏好习惯",state:"内在状态",goal:"未完成目标",fact:"事实信息",overview:"长期概览",summary:"阶段摘要"},layerLabelMap={overview:"长期概览",relation:"关系状态",profile:"用户画像",preference:"偏好习惯",state:"内在状态",promise:"约定承诺",goal:"未完成目标",fact:"事实信息",event:"事件记忆",sum
+  @40699 … summary:"阶段摘要"},layerLabelMap={overview:"长期概览",relation:"关系状态",profile:"用户画像",preference:"偏好习惯",state:"内在状态",promise:"约定承诺",goal:"未完成目标",fact:"事实信息",event:"事件记忆",summary:"阶段摘要"},lines=["【你心里默默记得的事】","下面这些是你和 User 之间真实发生过的——你**心里清楚**，不是档案手册。","它们影响你的语气、判断和反应；但你不会突然朝 User “汇报”自己记得什么。","","✅ 自然：User 说“今天好累”，你知道 ta 最近在赶项目，语气带点心疼就够了。
+  @95184 …  关系状态（用于校准亲密度和相处边界）:",relationMemories),summary+=renderSection("🤝 承诺与待兑现事项（必须优先遵守）:",promiseMemories),summary+=renderSection("🎯 未完成目标（后续对话中可自然推进）:",goalMemories),summary+=renderSection("💡 关键事件与深刻印象:",[...momentMemories,...infoMemories].sort(sortByPriority).slice(0,8)),summary+=renderSection("💕 情绪与关系变化:",emotionMemories),summ
+  … +3 more in this file
+
+### app-lofter.js  (1 hits)
+  @233699 … gth?positionLabels.join(" / "):"未设定"}`].join("；");return`${index+1}. ${member.name||`人物${index+1}`}，${meta}。人设：${member.persona||"待补充"}`})}(),memberNames=getActiveDraftMembers().map(function(member){return trimText(member.name,20)}).filter(Boolean),requestText=["你是中文同人社区 LOFTER 的文稿编辑。","请根据给定的 CP 设定、人物卡、世界观背景、用户补充关键词和自定义文风，写一篇可以
+
+### chat-features.js  (1 hits)
+  @39316 … ccess",footerText:"对方已经替你完成这笔代付"}:"failed"===requestPaymentStatus?{tone:"danger",badgeIcon:"代",brandLabel:"TAOBAO PAY",metaLabel:"未完成",title:"代付请求",subtitle:receiver?`收货人 ${receiver}`:"这张代付单暂时没有成功",totalLabel:"需代付",footerState:"danger",footerText:`代付失败：${receipt.failReason||"余额不足"}`}:"rejected"===requestPaymentStatus?{tone:"dang
+
+### global-backup-v3.js  (1 hits)
+  @192428 … |"").trim(),message=[`GitHub 分片备份不完整，缺少分片 ${partIndex}/${totalParts||"?"}`,normalizedPath?`路径：${normalizedPath}`:"","这通常表示上次“上传全量”未完成，或仓库中的分片文件被删除。","请重新执行一次“上传全量”以修复该备份。"].filter(Boolean).join("；"),error=new Error(message);return error.code="GITHUB_MULTIPART_PART_MISSING",error.partPath=normalizedPath,error.partIndex=Number(par
+
+### managers-apps.js  (1 hits)
+  @102606 … dvice.push("今天热量偏高，明天尽量避免高糖饮品和油炸食物，补足饮水并保持活动量。"):total<=1200?advice.push("今天热量偏低，注意不要长期过低摄入，可增加牛奶、鸡蛋或豆制品。"):advice.push("三餐结构总体可控，下一步重点是固定进食时间并减少随手加餐。"),advice.push("建议每周固定 2-3 天在同一时间称重，观察趋势而不是单日波动。"),advice.slice(0,4)}function buildLifeDietOpinionFallback(char,payload,analysis,userBrief){const charPrompt=String(char?.prompt||""
+
+### managers-qzone.js  (1 hits)
+  @35695 … 名要真实自然，年龄要合理（一般比${name}大25-35岁）\n4. 人生经历的三个阶段要有连贯性和因果关系\n5. 语言风格要口语化，体现性格，避免"我觉得"、"我认为"等平淡开头\n6. 总字数控制在600-800字\n7. 每个字段都要填写，不要出现"待补充"、"暂无"等占位符\n\n请严格按照格式生成：`;const response=await AIConfig.chat([{role:"user",content:promptText}],{temperature:.9});return extractAIContent(response)},getStrangersKey:()=>"qzone-strangers-cache",getC
+
+### managers-schedule.js  (16 hits)
+  @138649 … arMuseumFromSelector(charId){selectMuseumChar(charId,!1),openMuseumProfilePage(charId)}function getMuseumSafeText(value,fallback="待补充"){return String(value||"").replace(/\s+/g," ").trim()||fallback}function escapeMuseumHtml(value){return String(value||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"
+  @147294 … =getMuseumSafeText(period,""),o=getMuseumSafeText(organization,""),t=getMuseumSafeText(title,"");(p||o||t)&&rows.push({period:p||"待补充",organization:o||"待补充",title:t||"待补充"})},parseLine=line=>{const text=getMuseumSafeText(line,"");if(!text)return null;const pipes=text.split(/[|｜]/).map(s=>s.trim()).filter(Boolean);if(pipes.length
+  @147316 … iod,""),o=getMuseumSafeText(organization,""),t=getMuseumSafeText(title,"");(p||o||t)&&rows.push({period:p||"待补充",organization:o||"待补充",title:t||"待补充"})},parseLine=line=>{const text=getMuseumSafeText(line,"");if(!text)return null;const pipes=text.split(/[|｜]/).map(s=>s.trim()).filter(Boolean);if(pipes.length>=3)return{period:pipe
+  @147331 … seumSafeText(organization,""),t=getMuseumSafeText(title,"");(p||o||t)&&rows.push({period:p||"待补充",organization:o||"待补充",title:t||"待补充"})},parseLine=line=>{const text=getMuseumSafeText(line,"");if(!text)return null;const pipes=text.split(/[|｜]/).map(s=>s.trim()).filter(Boolean);if(pipes.length>=3)return{period:pipes[0],organizati
+  … +12 more in this file
+
+== total 29 hits in 8 files ==

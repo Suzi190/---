@@ -1,0 +1,10 @@
+
+### app-init.js  (20 hits)
+  @5965 … ,Math.round(Number(fallback)||0)))},resolveManualRetentionTier(memory={}){const layer=this.getMemoryLayer(memory),importance=this.getMemoryImportanceScore(memory,60),forgetting=this.normalizeForgettingScore(memory?.forgettingScore,20);return forgetting<=0&&["fact","promise","preference"].includes(layer)&&importance>=80||forgetti
+  @12860 … is.resolveMemoryEventTime(memory.eventTime??memory.time??memory.occurredAt,Date.now()),importanceScore="event"===memoryLayer?this.getMemoryImportanceScore(memory):this.getMemoryImportanceScore(memory,"overview"===memoryLayer?82:45),keywords=this.getMemoryKeywordList({...memory,content:compacted},"overview"===memoryLayer?8:6),sou
+  @12898 … Time??memory.time??memory.occurredAt,Date.now()),importanceScore="event"===memoryLayer?this.getMemoryImportanceScore(memory):this.getMemoryImportanceScore(memory,"overview"===memoryLayer?82:45),keywords=this.getMemoryKeywordList({...memory,content:compacted},"overview"===memoryLayer?8:6),sourceWindowKey=String(memory?.sourceWind
+  @16196 … =memory?.skipDuplicateUpdate)return{...duplicate,_writeAction:"duplicate"};const patch={updatedAt:Date.now()},duplicateScore=this.getMemoryImportanceScore(duplicate,null);if("overview"===memoryLayer||"summary"===memoryLayer){const existingNormalized=this.normalizeMemoryCompareText(duplicate.content||""),nextNormalized=this.norma
+  @19246 … ray(vec)&&vec.length>0&&await db.longTermMemories.update(memoryId,{embedding:vec,embeddedAt:Date.now()})}catch(_){}})}catch(_){}},getMemoryImportanceScore(memory,fallback=null){const candidates=[memory?.importanceScore,memory?.importance,memory?.score,memory?.priority,memory?.weight];for(const candidate of candidates){if(null==c
+  … +15 more in this file
+
+== total 20 hits in 1 files ==

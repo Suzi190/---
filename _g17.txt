@@ -1,0 +1,9 @@
+
+### st-char-import.js  (5 hits)
+  @14739 … .category, 40) || '导入世界书',         enabled: true,         isGlobalRef: false       });     }     return out;   }    async function doImport() {     var st = state;     if (!st || !st.card || st.busy) return;      var cm = getContactManager();     if (!cm) { toast('联系人模块还没就绪，请稍后再点一次', 'error'); return; }      var l
+  @17199 … -------- */    var state = { card: null, items: [], extras: [], onlyConstant: false, busy: false };   var modalEl = null;    function setFooterText(txt) {     var el = document.getElementById('st-import-status');     if (el) el.textContent = txt || '';   }    function buildModal() {     var mask = document.createEleme
+  @17339 … etFooterText(txt) {     var el = document.getElementById('st-import-status');     if (el) el.textContent = txt || '';   }    function buildModal() {     var mask = document.createElement('div');     mask.id = 'st-import-mask';     mask.style.cssText = 'position:fixed;inset:0;z-index:2147483500;background:rgba(0,0,0,.45);
+  @20646 … nge);      mask.addEventListener('click', function (e) { if (e.target === mask) closeModal(); });      return mask;   }    function openModal() {     if (!modalEl) modalEl = buildModal();     state.card = null;     state.items = [];     state.extras = [];     state.onlyConstant = false;     state.busy = false;     
+  @20910 … ];     state.onlyConstant = false;     state.busy = false;     renderPreview();     modalEl.style.display = 'flex';   }    function closeModal() {     if (modalEl) modalEl.style.display = 'none';     setFooterText('');   }      console.log('[st-char-import] 导入完成', { charId: charId, entries: savedCount });   }    /
+
+== total 5 hits in 1 files ==

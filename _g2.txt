@@ -1,0 +1,51 @@
+
+### app-dlsite.js  (2 hits)
+  @14345 … nabled:!1!==entry.enabled}}function getGlobalWorldBookRules(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules){const rules=WorldBook.getRules();if(Array.isArray(rules))return rules.map(function(rule){return{id:String(rule.id||""),title:trimText(rule.title||"未命名世界书",60)||"未命名世界书",content:tri
+  @14377 … ion getGlobalWorldBookRules(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules){const rules=WorldBook.getRules();if(Array.isArray(rules))return rules.map(function(rule){return{id:String(rule.id||""),title:trimText(rule.title||"未命名世界书",60)||"未命名世界书",content:trimText(rule.content||"",3e3),cate
+
+### app-douban.js  (2 hits)
+  @11199 … h.floor(minutes/1440)} 天前`}function getGlobalWorldBookRules(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules){const rules=WorldBook.getRules();if(Array.isArray(rules))return rules.map(rule=>({id:String(rule.id||""),title:text(rule.title||"未命名规则",80),content:text(rule.content||"",3e3),categ
+  @11231 … ion getGlobalWorldBookRules(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules){const rules=WorldBook.getRules();if(Array.isArray(rules))return rules.map(rule=>({id:String(rule.id||""),title:text(rule.title||"未命名规则",80),content:text(rule.content||"",3e3),category:text(rule.category||"未分类",40
+
+### app-init.js  (8 hits)
+  @566459 … select=document.getElementById("chat-global-worldbook-select");if(!select)return;const globalRules="undefined"!=typeof WorldBook&&WorldBook.getRules?WorldBook.getRules():[],usedGlobalIds=(currentChatCharId?getLocalWorldbookEntries(currentChatCharId):[]).filter(e=>e.isGlobalRef&&e.globalRefId).map(e=>e.globalRefId);if(select.inne
+  @566478 … ElementById("chat-global-worldbook-select");if(!select)return;const globalRules="undefined"!=typeof WorldBook&&WorldBook.getRules?WorldBook.getRules():[],usedGlobalIds=(currentChatCharId?getLocalWorldbookEntries(currentChatCharId):[]).filter(e=>e.isGlobalRef&&e.globalRefId).map(e=>e.globalRefId);if(select.innerHTML='<option valu
+  … +6 more in this file
+
+### app-lofter.js  (2 hits)
+  @7770 … (36).slice(2,8)}`}function getGlobalWorldBookRulesForLofter(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules){const rules=WorldBook.getRules();if(Array.isArray(rules))return rules.map(function(rule){return{id:normalizeId(rule&&rule.id),title:trimText(rule&&rule.title,80)||"未命名世界书",content:
+  @7802 … obalWorldBookRulesForLofter(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules){const rules=WorldBook.getRules();if(Array.isArray(rules))return rules.map(function(rule){return{id:normalizeId(rule&&rule.id),title:trimText(rule&&rule.title,80)||"未命名世界书",content:trimText(rule&&rule.content,3e3)
+
+### app-observation.js  (2 hits)
+  @11077 … tent);try{const worldBookApi=function getGlobalWorldBookApi(){try{if("undefined"!=typeof WorldBook&&WorldBook&&"function"==typeof WorldBook.getRules)return WorldBook}catch(_){}try{if(window.WorldBook&&"function"==typeof window.WorldBook.getRules)return window.WorldBook}catch(_){}return null}();if(worldBookApi){const apiRules=nor
+  @11174 … k&&WorldBook&&"function"==typeof WorldBook.getRules)return WorldBook}catch(_){}try{if(window.WorldBook&&"function"==typeof window.WorldBook.getRules)return window.WorldBook}catch(_){}return null}();if(worldBookApi){const apiRules=normalizeRules(worldBookApi.getRules());if(apiRules.length)return apiRules}}catch(_){}try{return nor
+
+### global-backup-v3.js  (2 hits)
+  @69480 … ,theme:theme||{},tokenStats:TokenStatsManager?.getStats?.()||{},worldBookRules:("undefined"!=typeof WorldBook&&"function"==typeof WorldBook.getRules?WorldBook.getRules():jparse(SyncStorage.getItem("ios-world-book-rules"),[]))||[],qzoneWorldBookRules:qzoneData.worldBook||[],notificationEnabled:SyncStorage.getItem("mix_notificatio
+  @69499 … kenStats:TokenStatsManager?.getStats?.()||{},worldBookRules:("undefined"!=typeof WorldBook&&"function"==typeof WorldBook.getRules?WorldBook.getRules():jparse(SyncStorage.getItem("ios-world-book-rules"),[]))||[],qzoneWorldBookRules:qzoneData.worldBook||[],notificationEnabled:SyncStorage.getItem("mix_notifications"),offlineActivit
+
+### managers-apps.js  (12 hits)
+  @34016 … );return safeJsonParse(saved,[])}catch(e){return[]}},saveRules(rules){SyncStorage.setItem(this.storageKey,JSON.stringify(rules))},addRule(title,content,category="",enabled=!0){const rules=this.getRules();rules.push({id:Date.now(),title:title,content:content,category:category||"未分类",enabled:enabled,createdAt:(new Date).toLocaleSt
+  @166678 … =categoryEl.value.trim()||"未分类",content=contentEl.value.trim();if(!title||!content)return void alert("请填写完整的规则名称和内容");const rules=WorldBook.getRules();rules.push({id:Date.now(),title:title,category:category,enabled:!0,createdAt:(new Date).toLocaleString(),content:content}),WorldBook.saveRules(rules),titleEl.value="",categoryEl.v
+  … +10 more in this file
+
+### managers-browser.js  (4 hits)
+  @1463 … type;let displayTitle=entry.title,displayContent=entry.content||"",isValid=!0;if(isGlobalRef&&entry.globalRefId){const globalRule=WorldBook.getRules().find(r=>r.id===entry.globalRefId);globalRule?(displayTitle=globalRule.title,displayContent=globalRule.content):entry.content?(displayTitle=entry.title+" (原全局已删除，使用缓存)",displayCont
+  @4199 … BookSelect()}function populateGlobalWorldBookSelect(){const select=document.getElementById("global-worldbook-select"),globalRules=WorldBook.getRules(),existingRefs=BrowserWorldBook.getEntries().filter(e=>"global-ref"===e.type).map(e=>e.globalRefId),availableRules=globalRules.filter(r=>!existingRefs.includes(r.id));0===availableR
+  … +2 more in this file
+
+### managers-extra.js  (13 hits)
+  @283912 … tats()||{},glowSettings:SyncStorage.getItem("glow-settings")||"",worldBookRules:"undefined"!=typeof WorldBook&&"function"==typeof WorldBook.getRules?WorldBook.getRules():[],stickers:await exportStickerList(),notificationEnabled:SyncStorage.getItem("mix_notifications"),offlineActivityEnabled:SyncStorage.getItem("offline-activity-
+  @283931 … ings:SyncStorage.getItem("glow-settings")||"",worldBookRules:"undefined"!=typeof WorldBook&&"function"==typeof WorldBook.getRules?WorldBook.getRules():[],stickers:await exportStickerList(),notificationEnabled:SyncStorage.getItem("mix_notifications"),offlineActivityEnabled:SyncStorage.getItem("offline-activity-enabled")}}catch(e)
+  … +11 more in this file
+
+### managers-group.js  (2 hits)
+  @216277 … ,showToast?.("已恢复默认群头像")}function getGlobalWorldBookRulesForGroup(){const rules="undefined"!=typeof WorldBook&&"function"==typeof WorldBook.getRules?WorldBook.getRules():[];return Array.isArray(rules)?rules.map(rule=>({id:rule?.id,title:String(rule?.title||"").trim()||"未命名规则",category:String(rule?.category||"").trim()||"未分类",con
+  @216296 … 群头像")}function getGlobalWorldBookRulesForGroup(){const rules="undefined"!=typeof WorldBook&&"function"==typeof WorldBook.getRules?WorldBook.getRules():[];return Array.isArray(rules)?rules.map(rule=>({id:rule?.id,title:String(rule?.title||"").trim()||"未命名规则",category:String(rule?.category||"").trim()||"未分类",content:String(rule?.c
+
+### managers-qzone.js  (11 hits)
+  @98109 … N.parse(SyncStorage.getItem(this.storageKey)||"[]")},saveRules(rules){SyncStorage.setItem(this.storageKey,JSON.stringify(rules))},addRule(name,category,content,isGlobalRef=!1,globalRefId=null){const rules=this.getRules();rules.push({id:Date.now(),name:name,category:category,content:content,enabled:!0,isGlobalRef:isGlobalRef,glob
+  @98944 … rules.map(r=>{let content=r.content,name=r.name;if(r.isGlobalRef&&r.globalRefId){const globalRule=("undefined"!=typeof WorldBook&&WorldBook.getRules?WorldBook.getRules():[]).find(gr=>gr.id==r.globalRefId);globalRule&&(content=globalRule.content,name=globalRule.title)}return{name:name,content:content}}).map(r=>`[${r.name}]: ${r.c
+  … +9 more in this file
+
+== total 60 hits in 11 files ==

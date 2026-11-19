@@ -1,0 +1,23 @@
+
+### app-dlsite.js  (19 hits)
+  @1667 … io:null,audioContext:null,ambienceNodes:[],ambienceTimers:[],customBusy:!1,continueBusyId:"",customForm:createDefaultCustomForm(),worldBookEntries:[],worldBookDraft:{globalRefId:"",title:"",content:""},toolPanels:{worldbookCollapsed:!0,customCollapsed:!0},playerVisible:!1,playerWorkId:"",playerMode:"full",playerCueIndices:[],pla
+  @14904 … les=getGlobalWorldBookRules(),ruleMap=new Map(rules.map(function(rule){return[String(rule.id),rule]}));return(Array.isArray(state.worldBookEntries)?state.worldBookEntries:[]).filter(function(entry){return entry&&!1!==entry.enabled}).map(function(entry,index){const normalized=normalizeDlsiteWorldBookEntry(entry,index);if("global-
+  @14928 … les(),ruleMap=new Map(rules.map(function(rule){return[String(rule.id),rule]}));return(Array.isArray(state.worldBookEntries)?state.worldBookEntries:[]).filter(function(entry){return entry&&!1!==entry.enabled}).map(function(entry,index){const normalized=normalizeDlsiteWorldBookEntry(entry,index);if("global-ref"!==normalized.type||
+  … +16 more in this file
+
+### app-observation.js  (24 hits)
+  @11757 … lobalWorldBookRules(),globalRuleMap=new Map(globalRules.map(rule=>[String(rule.id),rule]));return(Array.isArray(normalizedStation.worldBookEntries)?normalizedStation.worldBookEntries:[]).map((entry,index)=>normalizeObservationWorldBookEntry(entry,index)).filter(Boolean).map(entry=>{if("global-ref"!==entry.type||!entry.globalRefI
+  @11793 … new Map(globalRules.map(rule=>[String(rule.id),rule]));return(Array.isArray(normalizedStation.worldBookEntries)?normalizedStation.worldBookEntries:[]).map((entry,index)=>normalizeObservationWorldBookEntry(entry,index)).filter(Boolean).map(entry=>{if("global-ref"!==entry.type||!entry.globalRefId)return entry;const matched=globalR
+  @13254 … e||"").trim(),customName=String(source.customName||"").trim()||(source.nameCustomized||rawName&&rawName!==defaultName?rawName:""),worldBookEntries=(Array.isArray(source.worldBookEntries)?source.worldBookEntries:[]).map((entry,index)=>normalizeObservationWorldBookEntry(entry,index)).filter(Boolean);return{id:id,name:customName||d
+  … +21 more in this file
+
+### db-manager-full.js  (8 hits)
+  @6097 … 版本18，新增 offlineSessions 表..."),console.log("✅ 数据库版本18升级完成！")}),db.version(19).stores({worldBooks:"++id, userId, title, updatedAt",worldBookEntries:"++id, bookId, userId, title, updatedAt, [bookId+userId]"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本19，新增世界书相关表..."),console.log("✅ 数据库版本19升级完成！")}),db.version(20).stores({setti
+  @69871 … Messages","chatRules","exportData","longTermMemories","chatMessages","smsConversations","voiceConfigs","systemRuns","worldBooks","worldBookEntries","settings","media","chatSettings","userProfiles","groupChats","offlineMessages","groupOffline","theaterMemories"],missingTables=[];for(const table of expectedTables)db[table]||missin
+  @82616 … le.error("❌ [WorldBookManager] 保存世界书失败:",e),null}},async deleteBook(bookId){try{return await db.transaction("rw",db.worldBooks,db.worldBookEntries,async()=>{await db.worldBooks.delete(bookId),await db.worldBookEntries.where("bookId").equals(bookId).delete()}),console.log(`✅ [WorldBookManager] 已删除世界书及其所有条目: ${bookId}`),!0}catch(e
+  … +5 more in this file
+
+### managers-extra.js  (1 hits)
+  @357111 … Chats:"群聊",offlineMessages:"线下消息",groupOffline:"群聊线下",mails:"邮件",questionnaires:"问卷",questionnaireAnswers:"问卷答卷",worldBooks:"世界书",worldBookEntries:"世界书词条",htmlGeneratorDocuments:"HTML文档库",systemRuns:"系统流程",systemNodes:"系统节点",offlineSessions:"线下会话",exportData:"导出数据"}[tableName]||tableName}function buildDexieContactNameResolver(){
+
+== total 52 hits in 4 files ==

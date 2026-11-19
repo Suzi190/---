@@ -1,0 +1,5 @@
+
+### lazy-loader.js  (1 hits)
+  @3274 … rofile-once.js?v=20260604r1",label:"一次性清除 user 侧写记忆"},{src:"js/api-preset-model-patch.js?v=20260419r1",label:"API 预设补丁"},{src:"js/st-char-import.js?v=20261119r1",label:"SillyTavern角色卡导入"}],backgroundScripts=[{src:"js/managers-schedule.js?v=20260308r1",label:"日程系统"},{src:"js/managers-group.js?v=20260605r2",label:"群聊系统"},{src:"js/
+
+== total 1 hits in 1 files ==

@@ -1,0 +1,8 @@
+
+### lazy-loader.js  (4 hits)
+  @675 …  window[name]&&(window[name]=function(){})}),function(){var settled,loaded=Object.create(null),pendingScripts=Object.create(null),criticalScripts=[{src:"js/local-storage-persist.js?v=20260601r1",label:"本地存储持久化兜底(防设置被清)"},{src:"js/managers-events.js?v=20260528r1",label:"事件系统"},{src:"js/managers-apps.js?v=20260413r4",label:"首页应用"}
+  @5470 … leanup(success){loaded[src]=!!success,delete pendingScripts[src],resolve(!!success)}script.async=!1,script.src=resolvedSrc,script.onload=function(){cleanup(!0)},script.onerror=function(){if(!triedLocal&&resolvedSrc!==localSrc)return triedLocal=!0,script.onerror=function(){console.warn("Failed to load: "+src),cleanup(!1)},void(sc
+  @6628 … tifyLazyLoad(config.failureMessage||functionName+" 加载失败，请稍后重试")}))};proxy.__mixDeferredLoaderProxy=!0,window[functionName]=proxy}}function loadScriptQueue(scripts,options){var list=Array.isArray(scripts)?scripts:[],config=options&&"object"==typeof options?options:{},total=list.length,index=0,allSucceeded=!0;return"function"==typ
+  @14004 … 6r1"]=!1,notifyLazyLoad("观测加载失败，请稍后重试")})},function startCriticalLoad(){criticalLoadPromise||(criticalLoadPromise=loadScriptQueue(criticalScripts,{stage:"critical",yieldBetween:isIOSWebRuntime(),yieldDelay:0,onStart:function(meta){setSplashStatus("正在加载首页..."),dispatchLazyEvent("mix:lazy-progress",{stage:meta.stage,loaded:0,total
+
+== total 4 hits in 1 files ==

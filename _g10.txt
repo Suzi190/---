@@ -1,0 +1,11 @@
+
+### db-manager-full.js  (16 hits)
+  @1628 … lose()}catch(e){}return scheduleDbReload(),!1}),db.on("blocked",()=>{console.warn("⚠️ 数据库升级被其他连接阻塞，请关闭其他标签页后重试。")}),db.version(13).stores({contacts:"id, userId, name, type",chats:"id, charId, userId, lastMsg",memories:"id, contactId, userId",chatMessages:"++id, chatId, userId, role, timestamp, [chatId+userId], [chatId+timestamp]
+  @4329 … n(`⚠️ 迁移 ${contact.name} 的记忆失败:`,e)}}console.log("✅ 数据库版本13升级完成！")}catch(err){console.error("❌ 版本13数据迁移失败:",err)}}),db.version(14).stores({voiceConfigs:"id, charId, userId, timestamp",userBeautySettings:"id, userId, timestamp"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本14，新增voiceConfigs和userBeautySettings表...");try{const cu
+  @5086 … e||contact.id} 的语音配置到voiceConfigs`));console.log("✅ 数据库版本14升级完成！")}catch(err){console.error("❌ 版本14数据迁移失败:",err)}}),db.version(15).stores({questionnaires:"++id, odId, title, userId, status, createdAt",questionnaireAnswers:"++id, odId, questionnaireId, charId, userId, answeredAt"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本15
+  @5346 … userId, answeredAt"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本15，新增问卷系统表..."),console.log("✅ 数据库版本15升级完成！")}),db.version(16).stores({mails:"++id, odId, charId, userId, from, to, subject, sentAt, replyToMailId, read"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本16，新增邮件系统表..."),console.log("✅ 数据库版本16升级完成！")}),db.version(1
+  @5548 … eplyToMailId, read"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本16，新增邮件系统表..."),console.log("✅ 数据库版本16升级完成！")}),db.version(17).stores({systemRuns:"++id, odId, runId, userId, charId, worldType, status, createdAt, updatedAt",systemNodes:"++id, odId, runId, nodeId, type, content, options, createdAt"}).upgrade(async trans=>{cons
+  @5830 … options, createdAt"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本17，新增系统功能表..."),console.log("✅ 数据库版本17升级完成！")}),db.version(18).stores({offlineSessions:"++id, charId, userId, startTime, endTime, messageCount, summary"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本18，新增 offlineSessions 表..."),console.log("✅ 数据库版本18升级完成！")}),
+  … +10 more in this file
+
+== total 16 hits in 1 files ==

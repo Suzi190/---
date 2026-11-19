@@ -1,0 +1,6 @@
+
+### managers-apps.js  (2 hits)
+  @33802 … (url,description){currentPickerCallback&&currentPickerCallback(url,description),closeStickerPicker()}const WorldBook={storageKey:"ios-world-book-rules",getRules(){try{const saved=SyncStorage.getItem(this.storageKey);return safeJsonParse(saved,[])}catch(e){return[]}},saveRules(rules){SyncStorage.setItem(this.storageKey,JSON.strin
+  @34559 … ule(id){const targetId=String(id);let rules=this.getRules();rules=rules.filter(r=>String(r.id)!==targetId),this.saveRules(rules)},getEnabledRulesPrompt(){const enabledRules=this.getRules().filter(r=>r.enabled);if(0===enabledRules.length)return"";const grouped=enabledRules.reduce((acc,rule)=>{const cat=rule.category||"通用设定";retur
+
+== total 2 hits in 1 files ==

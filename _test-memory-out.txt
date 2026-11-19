@@ -1,0 +1,64 @@
+=== memory-access-touch 自检 20261119r1 ===
+
+[T1] 安装
+  PASS  window.MemoryAccessTouch 存在
+  PASS  已包装 MemoryManager.getMemoryAppPromptMemories
+  PASS  原函数被保存下来
+  PASS  重复 install 不重复包装
+  PASS  配置常量正确（5 分钟 / 0.6）
+
+[T2] 包装后行为不变
+  PASS  返回值就是原函数的返回（同一个引用）
+  PASS  原函数被调用 1 次
+  PASS  记账写入 2 条
+  PASS  id 正确
+
+[T3] lastAccessAt 部分推进 / accessCount 累加
+  PASS  写入了 1 条
+  PASS  accessCount 3 -> 4
+  PASS  lastAccessAt ≈ 基准 + 60% 间隔（不是直接置 now）
+  PASS  lastAccessAt 明显小于 now（没有完全重置）
+  PASS  内存对象同步被更新
+  PASS  原本没有 lastAccessAt 时也能算
+  PASS  完全没有时间字段时退回 now
+  PASS  resolveBaseTs 优先级：lastAccessAt > eventTime
+  PASS  resolveBaseTs 无字段时为 0
+
+[T4] 5 分钟节流（避免每轮狂写 IndexedDB）
+  PASS  第 1 轮写入 1 条
+  PASS  紧接着的 2 轮不再写入（仍为 1 条）
+  PASS  throttled 计数为 2
+
+[T5] 节流按条目独立
+  PASS  新 id 不受旧 id 节流影响
+
+[T6] 重置节流后再写一次
+  PASS  重置后又写入一条
+
+[T7] 异常输入不崩
+  PASS  非数组 / 空 / 脏元素都不写入
+  PASS  不抛异常
+
+[T8] 没有 id 或 id 为空的条目跳过
+  PASS  只写入有 id 的那一条
+
+[T9] db 未就绪时静默返回
+  PASS  不抛异常
+  PASS  noDb 计数 +1
+
+[T10] 原函数抛错时照常向外抛
+  PASS  异常透传，未被包装吞掉
+  PASS  抛错时不写库
+
+[T11] 写库失败只记 failed，不影响调用方
+  PASS  不抛异常
+  PASS  failed 计数 +1
+
+[T12] 调用次数与返回长度统计
+  PASS  返回 3 条
+  PASS  calls 计数 +1
+  PASS  picked = 3
+  PASS  touched = 3
+
+================================
+通过 36 / 合计 36  [全部通过]

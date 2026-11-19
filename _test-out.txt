@@ -1,0 +1,64 @@
+=== st-char-import 自检 v20261119r1 ===
+
+  PASS  脚本已挂载 window.STCharImport
+  PASS  调试接口 _test 可用
+
+[T1] base64 解码 UTF-8
+  PASS  中文往返一致
+  PASS  空串安全
+
+[T2] V2 PNG 卡解析
+  PASS  角色名
+  PASS  开场白 first_mes
+  PASS  prompt 含人物设定
+  PASS  prompt 含性格
+  PASS  prompt 含场景
+  PASS  prompt 含系统指令
+  PASS  prompt 含说话示例
+  PASS  prompt 含补充要求
+  PASS  tags 合并
+  PASS  头像取自 PNG 本体
+  PASS  格式识别
+  PASS  世界书保留 2 条（禁用/空白被过滤）
+  PASS  按 order 排序：第一条是条目B
+  PASS  第二条是条目A
+  PASS  内容各自独立(A)
+  PASS  内容各自独立(B)
+  PASS  常驻标记正确
+  PASS  keys 提取正确
+
+[T3] 写入局部世界书的条目（逐条、不合并）
+  PASS  2 条独立条目
+  PASS  两条内容没有合并成一条
+  PASS  全部 enabled
+  PASS  不是全局引用
+  PASS  category = 世界书名
+  PASS  id 全唯一，不会互相覆盖
+  PASS  id 是数字
+  PASS  200 条同批导入 id 不重复
+  PASS  未勾选的条目不写入
+
+[T4] V1 扁平卡解析
+  PASS  V1 名字
+  PASS  V1 开场白
+  PASS  V1 prompt 含描述
+  PASS  V1 无世界书
+  PASS  JSON 卡用默认头像
+
+[T5] 独立世界书 JSON（entries 是对象，ST 原生导出格式）
+  PASS  对象格式 entries 解析出 2 条（disable 的排除）
+  PASS  内容正确
+  PASS  世界书名兜底用文件名
+  PASS  独立世界书同样逐条写入
+
+[T6] 异常输入处理
+  PASS  非 PNG 文件报错
+  PASS  PNG 无 chara 块时报错
+  PASS  不支持的扩展名报错
+  PASS  没有 entries 的世界书报错
+
+[T7] 兼容性：其他 chunk 键名
+  PASS  识别 ccv3 键
+
+================================
+通过 45 / 合计 45  [全部通过]

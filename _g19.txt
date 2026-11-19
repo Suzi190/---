@@ -1,0 +1,5 @@
+
+### st-char-import.js  (1 hits)
+  @8718 … nstant ? -1 : 1;       return a.order - b.order;     });     return out;   }    /* 世界书条目 → 项目「局部世界书」条目格式（一条一条，绝不合并） */   function toLocalWorldbookEntries(items, bookName, onlyConstant) {     var cat = (trim(bookName, 40) || '导入世界书');     var out = [];     for (var i = 0; i < items.length; i++) {       var it = items[i];       if
+
+== total 1 hits in 1 files ==

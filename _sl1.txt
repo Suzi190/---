@@ -1,0 +1,47 @@
+ror');
+        console.error('[st-char-import] 世界书写入失败', e);
+      }
+    }
+
+    st.busy = false;
+    closeModal();
+
+    var msg = '✅ 已导入「' + st.card.name + '」';
+    if (savedCount) msg += '，世界书 ' + savedCount + ' 条';
+    toast(msg);
+
+    try {
+      if (typeof window.renderContactsList === 'function') window.renderContactsList();
+    } catch (e) { }
+    try {
+      if (typeof window.renderLocalWorldbookList === 'function') window.renderLocalWorldbookList();
+    } catch (e) { }
+    try {
+      window.dispatchEvent(new CustomEvent('mix:contacts-updated', { detail: { charId: charId } }));
+    } catch (e) { }
+
+  /* ---------------- UI ---------------- */
+
+  var state = { card: null, items: [], extras: [], onlyConstant: false, busy: false };
+  var modalEl = null;
+
+  function setFooterText(txt) {
+    var el = document.getElementById('st-import-status');
+    if (el) el.textContent = txt || '';
+  }
+
+  function buildModal() {
+    var mask = document.createElement('div');
+    mask.id = 'st-import-mask';
+    mask.style.cssText = 'position:fixed;inset:0;z-index:2147483500;background:rgba(0,0,0,.45);'
+      + 'display:none;align-items:center;justify-content:center;padding:16px;';
+
+    mask.innerHTML = ''
+      + '<div id="st-import-box" style="width:100%;max-width:460px;max-height:88vh;display:flex;flex-direction:column;'
+      + 'background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.28);">'
+      + '  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;'
+      + '       border-bottom:1px solid #f0f0f0;">'
+      + '    <div style="font-size:15px;font-weight:700;color:#111;">导入角色卡</div>'
+      + '    <div id="st-import-x" style="font-size:22px;line-height:1;color:#aaa;cursor:pointer;padding:0 4px;">&times;</div>'
+      + '  </div>'
+      + '  <div style="padding:14p

@@ -1,0 +1,23 @@
+name       = 林晚
+format     = PNG 角色卡  (4799 bytes)
+greeting   = "（抬头看了你一眼，把笔在布上蹭了蹭）……伞没带吧。先坐，等雨小点再走。"
+tags       = ["AI 角色","日常","治愈","慢热"]
+avatar     = data:image/png;base64,iVBORw0KGgoAAAANSU...  (6422 chars)
+prompt 字数 = 343
+bookName   = 林晚的世界书
+bookItems  = 5 条
+   [0] 画室  59字  常驻=true  keys=["画室","studio"]
+   [1] 画室的猫  27字  常驻=false  keys=["猫"]
+   [2] 旧电影  46字  常驻=false  keys=["旧电影"]
+   [3] 楼下周师傅  43字  常驻=false  keys=["周师傅","修表"]
+   [4] 颜料习惯  50字  常驻=false  keys=["颜料","水彩"]
+
+写入局部世界书：5 条，id 全唯一=true
+样例: {"id":1795085892488001,"title":"画室","content":"画室在老城区梧桐巷 17 号二楼，面积很小，靠窗摆一张旧木桌，墙上钉着二十多张没画完的水彩。楼下是家修表铺，老板姓周。","category":"林晚的世界书","enabled":true,"isGlobalRef":fal
+
+附加世界书：附加测试世界书 → 3 条
+   [0] 梧桐巷  43字
+   [1] 修表铺  41字
+   [2] 这里的雨  36字
+
+[OK] 端到端解析通过

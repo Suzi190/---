@@ -1,0 +1,8 @@
+
+### db-manager-full.js  (1 hits)
+  @3263 …  timestamp",homeStickers:"++id, userId, imageData, position, size, timestamp",beautifyConfigs:"id, userId, configType, timestamp",longTermMemories:"++id, chatId, userId, type, content, source, important, timestamp, [chatId+userId], [chatId+type], [chatId+important]"}).upgrade(async trans=>{console.log("🔄 数据库升级到版本13，建立统一长期记忆系统..
+
+### managers-extra.js  (1 hits)
+  @356681 … el(tableName){return{contacts:"联系人",chats:"聊天记录",chatMessages:"聊天消息时间线",memories:"记忆",memoryRecords:"记忆记录",memoryFragments:"记忆碎片",longTermMemories:"长期记忆",smsMessages:"短信消息",smsConversations:"短信会话",photos:"相册",feeds:"动态",qzone:"QQ空间",userProfiles:"用户资料",userSettings:"用户设置",settings:"系统设置",chatSettings:"聊天设置",avatars:"头像",chatBack
+
+== total 2 hits in 2 files ==
