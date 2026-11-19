@@ -116,6 +116,7 @@
     setupBackButton();
     setupNotifications();
     setupViewportSync();
+    neutralizeKeyboardShift();
   }
 
   // ==========================================================
@@ -242,6 +243,46 @@
     window.addEventListener('resize', schedule, { passive: true });
     window.addEventListener('orientationchange', function () { setTimeout(schedule, 260); });
     schedule();
+  }
+
+  // ==========================================================
+  //  中和 first-paint.js 的「输入栏上移」补偿
+  //
+  //  first-paint.js 在键盘弹起时会给 --keyboard-bottom-overlap 赋值（约等于键盘高度），
+  //  然后用它把聊天输入栏 transform: translateY(-overlap)，同时把聊天页容器
+  //  --active-viewport-height 收成 visualViewport 的高度。
+  //
+  //  这是给「容器会跟着变矮」的场景写的一层保险，在我们外壳里会双重生效：
+  //  MainActivity 已经把 WebView 的真实高度压掉了键盘，容器本来就已经变矮，
+  //  那层平移再执行一次，输入栏就被顶到屏幕中间、下面空出一大块黑。
+  //
+  //  所以这里用特异性更高的规则（html.ccj-native body #id，比 first-paint 的
+  //  #id 高一级，不依赖加载顺序）把平移压成 0 —— 容器已经让位，不需要再平移。
+  //  顺带把消息区的 padding 还原成键盘关闭时的常量，避免底部多出一整屏空白。
+  // ==========================================================
+  var KB_SHIFT_CSS =
+    'html.ccj-native body #chat-input-area,' +
+    'html.ccj-native body #group-chat-input-area,' +
+    'html.ccj-native body #offline-mode-footer,' +
+    'html.ccj-native body #group-offline-mode-footer' +
+    '{transform:none !important;transition:none !important;}' +
+    'html.ccj-native body #chat-messages.chat-detail-content,' +
+    'html.ccj-native body #group-chat-messages.chat-detail-content' +
+    '{padding-bottom:12px !important;scroll-padding-bottom:20px !important;}';
+
+  function neutralizeKeyboardShift() {
+    function inject() {
+      try {
+        if (document.getElementById('ccj-kb-shift-fix')) return;
+        var st = document.createElement('style');
+        st.id = 'ccj-kb-shift-fix';
+        st.textContent = KB_SHIFT_CSS;
+        (document.head || document.documentElement).appendChild(st);
+      } catch (_) {}
+    }
+    inject();
+    // 懒加载的样式表可能后到，load 之后再补一次；有 id 去重，重复调用无副作用
+    window.addEventListener('load', function () { setTimeout(inject, 0); });
   }
 })();
 

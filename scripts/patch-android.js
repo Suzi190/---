@@ -196,16 +196,20 @@ if (!mainJava.includes('MixNativeBridgePlugin.class')) die('MainActivity 未注�
 if (!mainJava.includes('setDecorFitsSystemWindows')) die('MainActivity 缺少全屏逻辑');
 if (!mainJava.includes('setDecorFitsSystemWindows(window, false)')) die('MainActivity 必须用 edge-to-edge（setDecorFitsSystemWindows(false)），改成 true 刘海区会变成一条纯黑边');
 if (!mainJava.includes('hideSystemBars')) die('MainActivity 缺少隐藏系统栏逻辑');
-// 防回退：键盘缩放必须交给 Chromium 自己完成。
-// index.html 第一段脚本会往 viewport 里追加 interactive-widget=resizes-content，
-// 全屏之后 Chromium 自己读 IME insets 把布局视口缩掉一次 —— 这一次就够了。
-// 原生要是再插手（改 layoutParams.height 或 setPadding），就会在已缩的基础上再缩，
-// 聊天页容器只剩「全屏 − 2×键盘」，输入栏被顶到屏幕中间、下面空出一大块黑。
-if (/resizeWebViewForIme/.test(mainJava) || /layoutParams\s*\.\s*height\s*=/.test(mainJava)) {
-  die('MainActivity 不能自己压缩 WebView 高度：Chromium 已经按 interactive-widget 缩过一次，再缩就是双重扣减，输入栏会飞到屏幕中间');
-}
-if (mainJava.includes('webView.setPadding')) die('MainActivity 不能用 setPadding 处理键盘，它不改变 Chromium viewport');
+// 键盘必须由原生改 WebView 的【真实高度】来躲。
+// 原因：vivo 这类国产 ROM 的 WebView 不响应 IME insets，index.html 里的
+// interactive-widget=resizes-content 是空转的，Chromium 不会自己缩，输入栏就被键盘盖住。
+if (!mainJava.includes('resizeWebViewForIme')) die('MainActivity 缺少键盘高度处理（resizeWebViewForIme）：国产 ROM 的 WebView 不会自己躲键盘');
+// 防回退：setPadding 不改变 Chromium viewport，innerHeight 不变，输入栏根本不会动
+if (mainJava.includes('webView.setPadding')) die('MainActivity 不能用 setPadding 处理键盘，必须改 layoutParams.height');
 if (!mainJava.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) die('MainActivity 未设置系统栏临时滑出行为');
+
+// 原生把 WebView 压矮之后，页面里 first-paint.js 那层「输入栏 translateY(-键盘高)」必须被中和，
+// 否则容器已经让位还要再平移一截，输入栏会被顶到屏幕中间、下面空出一大块黑。两边是配套的，删一边就复现。
+const shellJsPath = path.join(SITE, 'js', 'capacitor-shell.js');
+if (!fs.existsSync(shellJsPath)) die('缺少 叉叉机/js/capacitor-shell.js');
+const shellJs = fs.readFileSync(shellJsPath, 'utf8');
+if (!shellJs.includes('neutralizeKeyboardShift')) die('capacitor-shell.js 缺少键盘平移中和（neutralizeKeyboardShift）：键盘弹起时输入栏会飞到屏幕中间');
 
 const pluginJava = fs.readFileSync(path.join(ANDROID, MUST[1]), 'utf8');
 const REQUIRED_METHODS = [
