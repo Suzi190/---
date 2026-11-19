@@ -48,6 +48,15 @@ public class MainActivity extends BridgeActivity {
     private int lastCutBottomCss = -1;
     private int lastImeFlag = -1;
     private float density = 3f;
+    /**
+     * 「键盘收起时的整屏高度」，单位 px。
+     *
+     * 这是躲键盘的唯一基准，绝对不能拿 decor.getHeight() 现算 ——
+     * Manifest 里写的是 adjustResize，键盘弹起时系统可能已经把窗口/decor 缩掉了，
+     * 此时 decor.getHeight() 本身就是「全屏 - 键盘」，再减一次键盘就是扣两次：
+     * WebView 只剩屏幕上方很窄的一条，下面空出整块深色（这就是用户反馈的"深色背景特别大一块"）。
+     */
+    private int fullHeightPx = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,19 +117,72 @@ public class MainActivity extends BridgeActivity {
      *
      * 每次 insets 回调都重新算一遍（不是只在键盘变化时），这样旋转屏幕、分屏、
      * 从后台切回来之后高度都能自动修正，不会残留错误值。
+     *
+     * ⚠️ 基准只能是 fullHeightPx（键盘收起时的整屏高度），不能是 decor.getHeight()。
+     *    因为 Manifest 是 adjustResize，键盘弹起时系统可能已经把 decor 缩掉了，
+     *    拿缩过的高度再减一次键盘 = 扣两次，WebView 只剩一条缝，下方露出大块深色。
      */
     private void resizeWebViewForIme(View decor, int imePx) {
         if (webView == null || decor == null) return;
-        int fullH = decor.getHeight();
-        if (fullH <= 0) {
-            fullH = getResources().getDisplayMetrics().heightPixels;
+
+        int curH = decor.getHeight();
+        int screenH = getRealScreenHeight();
+
+        if (imePx <= 0) {
+            // 键盘收起：只有当 decor 高度确实是"整屏"时才当成新基准。
+            // 键盘收起动画进行中会回调几次，这时 decor 还没恢复完，采样到就会把基准设小，
+            // 下一次弹键盘又扣一次 → 输入栏继续飞。所以用屏幕物理高度交叉校验。
+            boolean looksFullScreen = curH > 0 && screenH > 0
+                    && Math.abs(curH - screenH) <= Math.max(24, Math.round(screenH * 0.03f));
+            if (curH > 0 && (fullHeightPx <= 0 || looksFullScreen)) {
+                fullHeightPx = curH;
+            }
+        } else {
+            // 首次回调就处于键盘态（极少见）：物理屏高比缩过的 decor 可靠
+            if (fullHeightPx <= 0 && screenH > 0) fullHeightPx = screenH;
+            // 键盘弹起时如果 decor 反而更高（少数 ROM 的时序），以更大的为准
+            if (curH > 0 && curH > fullHeightPx) fullHeightPx = curH;
         }
-        if (fullH <= 0) return;
-        int targetH = Math.max(1, fullH - Math.max(0, imePx));
+
+        if (fullHeightPx <= 0) {
+            fullHeightPx = screenH > 0 ? screenH : getResources().getDisplayMetrics().heightPixels;
+        }
+        if (fullHeightPx <= 0) return;
+
+        int targetH = Math.max(1, fullHeightPx - Math.max(0, imePx));
         ViewGroup.LayoutParams lp = webView.getLayoutParams();
         if (lp == null || lp.height == targetH) return;
         lp.height = targetH;
         webView.setLayoutParams(lp);
+    }
+
+    /** 整屏物理高度（含状态栏 / 导航栏），不受 adjustResize 影响，只用来做交叉校验 */
+    private int getRealScreenHeight() {
+        try {
+            DisplayMetrics m = new DisplayMetrics();
+            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+            if (wm != null && wm.getDefaultDisplay() != null) {
+                wm.getDefaultDisplay().getRealMetrics(m);
+                if (m.heightPixels > 0) return m.heightPixels;
+            }
+        } catch (Throwable ignored) {
+        }
+        DisplayMetrics fb = getResources().getDisplayMetrics();
+        return fb.heightPixels;
+    }
+
+    /**
+     * 旋转屏幕 / 折叠屏展开时重建基准。
+     * Manifest 里配了 configChanges，Activity 不会重建，所以必须在这里手动重置，
+     * 否则横屏时还拿竖屏的全屏高度当基准，WebView 会被裁掉一大截。
+     */
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        if (dm.density > 0) density = dm.density;
+        fullHeightPx = getRealScreenHeight();
+        ViewCompat.requestApplyInsets(getWindow().getDecorView());
     }
 
     /** 真正把状态栏和导航栏藏起来；用户从屏幕边缘滑动时可以临时调出来 */

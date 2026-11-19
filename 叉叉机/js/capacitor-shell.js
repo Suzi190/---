@@ -11,10 +11,27 @@
 (function () {
   'use strict';
 
-  var isNative = false;
-  try {
-    isNative = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
-  } catch (_) {}
+  var isNative = detectNative();
+
+  /**
+   * 判断当前是不是内置 APK。
+   *
+   * ⚠️ 不能只看 window.Capacitor：Capacitor 的原生桥是在页面开始加载之后才注入的，
+   *    本文件放在 index.html 的 <head> 最前面，执行时有可能还拿不到 Capacitor。
+   *    一旦这里误判成"不是 App"，下面整套原生适配（安全区变量、键盘平移中和）都不会安装，
+   *    用户看到的就是"输入框又飞到屏幕中间 + 下面一大块深色"。
+   *
+   * 兜底特征：Capacitor Android 的内置页面地址恒为 https://localhost/。
+   */
+  function detectNative() {
+    try {
+      if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) return true;
+    } catch (_) {}
+    try {
+      if (location && location.hostname === 'localhost' && /Android/i.test(navigator.userAgent || '')) return true;
+    } catch (_) {}
+    return false;
+  }
 
   // ---------- 关键：在任何脚本之前关掉浏览器版键盘兜底 ----------
   // keyboard-viewport-fix.js 的第一行是 if(!window.__keyboardViewportFixInstalled)。
@@ -103,7 +120,16 @@
     }
   }
 
-  if (isNative) {
+  var nativeInited = false;
+
+  function initNative() {
+    if (nativeInited) return;
+    nativeInited = true;
+
+    // 万一早期没判定成 App，keyboard-viewport-fix.js 可能已经装上了，
+    // 这里再置一遍标志（对它本身无效，但能挡住后续重复安装）
+    window.__keyboardViewportFixInstalled = true;
+
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function () { patchStyleSheets(); });
     } else {
@@ -118,6 +144,17 @@
     setupViewportSync();
     neutralizeKeyboardShift();
   }
+
+  function tryNativeInit() {
+    if (nativeInited) return;
+    if (detectNative()) initNative();
+  }
+
+  // 注意：真正的调用点在文件最末尾 ——
+  // 因为 initNative 里要用到的 KB_SHIFT_CSS 等 var 变量在文件后半段才赋值，
+  // 在这里立刻调用会拿到 undefined（历史上就是因此在 <style> 里注入了 "undefined"，
+  // 那套"中和键盘平移"的样式从来没生效，输入框才会飞到屏幕中间）。
+
 
   // ==========================================================
   //  返回键 / 侧滑返回
@@ -231,9 +268,18 @@
       var h = window.innerHeight;
       if (!h || h < 120) return;
       try {
+        // ① --app-height：整屏高度（键盘收起的值由 first-paint.js 维护，这里跟随真实视口）
         var cur = root.style.getPropertyValue('--app-height');
-        if (cur === h + 'px') return;
-        root.style.setProperty('--app-height', h + 'px');
+        if (cur !== h + 'px') root.style.setProperty('--app-height', h + 'px');
+        // ② --active-viewport-height：聊天页/整页容器的实际高度，必须是"当前真正能用的那块"。
+        //    原生把 WebView 压矮后 innerHeight 就是它；first-paint.js 是拿 visualViewport 算的，
+        //    在个别 ROM 上它不跟着变，容器就会比键盘上沿高一大截 → 输入栏被键盘盖住。
+        //    这里用行内 !important 写死成真实视口高（行内 important 优先级最高，压得过 first-paint）。
+        //    虚拟屏幕预览模式（has-custom-screen-size 且非 fill-screen-mode）下不碰，
+        //    否则会把用户自定义的预览尺寸顶掉。
+        var fillMode = !root.classList.contains('has-custom-screen-size') ||
+          root.classList.contains('is-fill-screen-mode');
+        if (fillMode) root.style.setProperty('--active-viewport-height', h + 'px', 'important');
       } catch (_) {}
     }
     function schedule() {
@@ -261,6 +307,15 @@
   //  顺带把消息区的 padding 还原成键盘关闭时的常量，避免底部多出一整屏空白。
   // ==========================================================
   var KB_SHIFT_CSS =
+    // ① 最狠也最稳的一刀：把驱动补偿的 CSS 变量直接钉成 0。
+    //    first-paint.js 是用 element.style.setProperty 写的【行内】普通声明，
+    //    而带 !important 的样式表声明优先级高于行内普通声明，所以这里能压住它。
+    //    这样不管它内部怎么算、以后又加了什么用这个变量的样式，都不会再动输入栏。
+    'html.ccj-native{' +
+    '--keyboard-bottom-overlap:0px !important;' +
+    '--keyboard-offset-top:0px !important;' +
+    '}' +
+    // ② 兜底：把用到它的那几个选择器的 transform / padding 也按死
     'html.ccj-native body #chat-input-area,' +
     'html.ccj-native body #group-chat-input-area,' +
     'html.ccj-native body #offline-mode-footer,' +
@@ -273,7 +328,12 @@
   function neutralizeKeyboardShift() {
     function inject() {
       try {
-        if (document.getElementById('ccj-kb-shift-fix')) return;
+        var old = document.getElementById('ccj-kb-shift-fix');
+        if (old) {
+          // 已经注入过：内容正常就不动；万一被写成了 "undefined"（历史坑），重写一遍
+          if (old.textContent && old.textContent.indexOf('ccj-native') >= 0) return;
+          old.parentNode && old.parentNode.removeChild(old);
+        }
         var st = document.createElement('style');
         st.id = 'ccj-kb-shift-fix';
         st.textContent = KB_SHIFT_CSS;
@@ -283,6 +343,23 @@
     inject();
     // 懒加载的样式表可能后到，load 之后再补一次；有 id 去重，重复调用无副作用
     window.addEventListener('load', function () { setTimeout(inject, 0); });
+  }
+
+  // ==========================================================
+  //  启动原生适配
+  //
+  //  必须放在文件最末尾：上面 KB_SHIFT_CSS 等用 var 声明的变量到这里才有值。
+  //  （历史上把 initNative() 写在文件前半段，var 提升导致注入 <style> 的内容是
+  //    "undefined"，键盘平移中和整个失效 —— 这就是"输入框又飞起来"的根因。）
+  // ==========================================================
+  if (isNative) {
+    initNative();
+  } else {
+    // Capacitor 桥可能晚于本脚本注入：DOM 解析完成、load、以及几个时间点各补试一次。
+    // initNative 是幂等的，重复调用没有副作用。
+    document.addEventListener('DOMContentLoaded', tryNativeInit);
+    window.addEventListener('load', tryNativeInit);
+    [200, 600, 1500, 3000].forEach(function (ms) { setTimeout(tryNativeInit, ms); });
   }
 })();
 
