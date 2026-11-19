@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- 基础主题：深色 + 黑色窗口背景，杜绝启动白闪 -->
+    <!-- 基础主题：深色 + 浅色窗口背景。
+         窗口背景只在「WebView 没铺满」的时候才会看见（键盘动画缝隙、切后台回来的一瞬）。
+         这里用浅色而不是纯黑：万一高度没跟上，露出来的是接近聊天页的浅灰白，不再是一整块刺眼黑色。 -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">#000000</item>
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">#4F8CFF</item>
-        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowBackground">#F2F4F2</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
 

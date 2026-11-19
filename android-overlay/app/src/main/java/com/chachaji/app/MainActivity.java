@@ -3,7 +3,8 @@ package com.chachaji.app;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,11 +72,17 @@ public class MainActivity extends BridgeActivity {
      * 所以动画期间高度改由 WindowInsetsAnimationCompat 每帧插值推进（见 setupImeAnimation）。
      */
     private boolean imeAnimating = false;
-    /** 这一次键盘动画起始 / 结束时的 IME 高度（px），用来按动画进度插值 */
+    /** 这一次键盘动画起始 / 结束时的 IME 高度（px），只在 ROM 不逐帧给值时用来插值 */
     private int animStartIme = 0;
     private int animEndIme = 0;
-    /** 上一次 onProgress 的时间戳，用来识别"动画回调中途断了"，避免卡在 imeAnimating=true */
-    private long lastAnimTick = 0;
+    /** 主线程 Handler：跑"动画看门狗"，保证高度最终一定回到正确值 */
+    private final Handler uiHandler = new Handler(Looper.getMainLooper());
+    /** 上一次 onProgress 里 insets 给出的 IME 高度，用来探测 ROM 有没有逐帧给值 */
+    private int lastProgressIme = -1;
+    /** ROM 在 onProgress 的 insets 里是否真的逐帧变化（不逐帧时改用 bounds 插值） */
+    private boolean romInterpolatesInsets = true;
+    /** 系统是否真的在帮我们缩窗口（adjustResize 生效）。只有 true 时才能用 decor 高度反推键盘状态 */
+    private boolean systemResizesWindow = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,12 +128,8 @@ public class MainActivity extends BridgeActivity {
         ViewCompat.setOnApplyWindowInsetsListener(window.getDecorView(), (v, insets) -> {
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-            // 动画回调中途断了（个别 ROM 会这样）→ 退化成老路，否则 WebView 永远不缩、输入框被键盘盖住
-            if (imeAnimating && SystemClock.uptimeMillis() - lastAnimTick > 500) {
-                imeAnimating = false;
-            }
             // 键盘高度 → 压缩 WebView 真实高度。这是本机唯一有效的机制，别删（见类注释三条对比）。
-            // 但动画进行中不能在这里抢先设成最终值，否则 WebView 先缩、键盘后到，中间露出窗口深色。
+            // 但动画进行中不能在这里抢先设成最终值，否则 WebView 先缩、键盘后到，中间露出窗口底色。
             // 动画期间的高度由 setupImeAnimation 的 onProgress 逐帧推进。
             // 另外这里要延迟一帧：动画的 onStart 是在同一次 insets 分发里发生的，
             // 立刻压会把高度先跳到终点，紧接着第一帧 onProgress 又把它拉回起点 → 闪一下。
@@ -148,9 +151,13 @@ public class MainActivity extends BridgeActivity {
      * WebView 高度逐帧跟随键盘动画。
      *
      * Android 11+ 的键盘是带动画的，onApplyWindowInsets 只在开头/结尾给出终值，
-     * 中间过程要靠 WindowInsetsAnimationCompat 的 onProgress 每帧回调（官方就是让开发者这样做）。
-     * 拿 bounds 的起止高度 + getInterpolatedFraction() 自己插值，比直接读 insets 更稳 ——
-     * 有些 ROM 在 onProgress 里返回的 insets 仍是终值，插值法不受影响。
+     * 中间过程要靠 WindowInsetsAnimationCompat 的 onProgress 每帧回调。
+     *
+     * ⚠️ 血的教训（第 3 版翻车在这里）：**不能拿动画的 bounds 上下界当最终答案**。
+     *    有的 ROM 在「收起键盘」时 bounds 的 upper 仍然是键盘高度（上下界给反了），
+     *    照它收尾就会把 WebView 永久停在"键盘态" —— 收起键盘后下面留一整块底色，再也回不来。
+     *    现在的规矩：动画只负责"过程好看"，**最终高度一律以系统真实的 ime insets 为准**
+     *    （onEnd / 看门狗都走 syncFromCurrentInsets）。
      *
      * Android 10 及以下没有这套 API，回调不会触发，走 onApplyWindowInsets 的老路即可。
      */
@@ -166,6 +173,9 @@ public class MainActivity extends BridgeActivity {
                             imeAnimating = true;
                             animStartIme = Math.max(0, bounds.getLowerBound().bottom);
                             animEndIme = Math.max(0, bounds.getUpperBound().bottom);
+                            lastProgressIme = -1;
+                            romInterpolatesInsets = true;
+                            startAnimWatchdog();
                         }
                         return bounds;
                     }
@@ -178,12 +188,23 @@ public class MainActivity extends BridgeActivity {
                             WindowInsetsAnimationCompat anim = running.get(i);
                             if (anim == null) continue;
                             if ((anim.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) continue;
+
                             float f = anim.getInterpolatedFraction();
                             if (f < 0f) f = 0f;
                             if (f > 1f) f = 1f;
-                            int curIme = Math.round(animStartIme + (animEndIme - animStartIme) * f);
-                            lastAnimTick = SystemClock.uptimeMillis();
-                            applyWebViewHeight(curIme);
+                            int curveIme = Math.round(animStartIme + (animEndIme - animStartIme) * f);
+                            int insetsIme = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+
+                            // 探测：动画走到中段、insets 里的 IME 高度却一直没变
+                            // → 这家 ROM 不逐帧给值，退回用 bounds 插值（否则会一秒跳到位）
+                            if (romInterpolatesInsets && f > 0.2f && f < 0.8f
+                                    && lastProgressIme == insetsIme
+                                    && Math.abs(insetsIme - curveIme) > 6) {
+                                romInterpolatesInsets = false;
+                            }
+                            lastProgressIme = insetsIme;
+
+                            applyWebViewHeight(romInterpolatesInsets ? insetsIme : curveIme);
                             break;
                         }
                         return insets;
@@ -193,11 +214,58 @@ public class MainActivity extends BridgeActivity {
                     public void onEnd(WindowInsetsAnimationCompat animation) {
                         if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
                             imeAnimating = false;
-                            // 收尾对齐到动画终点，避免最后一帧差几个像素
-                            applyWebViewHeight(animEndIme);
+                            // 以真实 insets 收尾（绝不能信 animEndIme，见方法注释）
+                            syncFromCurrentInsets();
+                            // 键盘收起时系统的 insets 更新有时比动画晚一拍，再补一次
+                            uiHandler.removeCallbacksAndMessages(null);
+                            uiHandler.postDelayed(MainActivity.this::syncFromCurrentInsets, 240);
                         }
                     }
                 });
+    }
+
+    /**
+     * 看门狗：动画开始后 600ms 无条件收尾。
+     *
+     * 有的 ROM 的 onEnd 根本不触发（或被 WebView 连续 layout 打乱），
+     * 一旦卡在 imeAnimating=true，高度就再也不更新 —— 现象正是"收起键盘后下面一直留一大块"。
+     * 这里到点强行置 false 并按真实 insets 校正，最多难看 0.6 秒，绝不会永久错。
+     */
+    private void startAnimWatchdog() {
+        uiHandler.removeCallbacksAndMessages(null);
+        uiHandler.postDelayed(() -> {
+            if (imeAnimating) {
+                imeAnimating = false;
+                syncFromCurrentInsets();
+            }
+        }, 600);
+    }
+
+    /**
+     * 唯一的最终裁决：读系统当前真实的 ime insets，把 WebView 高度校正到与之匹配。
+     * 键盘收起 → insets 为 0 → WebView 恢复满屏；键盘弹起 → insets 为键盘高 → 压掉键盘高。
+     */
+    private void syncFromCurrentInsets() {
+        View decor;
+        try {
+            Window w = getWindow();
+            if (w == null) return;
+            decor = w.getDecorView();
+        } catch (Throwable t) {
+            return;
+        }
+        if (decor == null) return;
+        final View d = decor;
+        d.post(() -> {
+            if (imeAnimating) return; // 新的一轮动画已经开始，让它自己走完
+            int imePx = 0;
+            try {
+                WindowInsetsCompat wi = ViewCompat.getRootWindowInsets(d);
+                if (wi != null) imePx = wi.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            } catch (Throwable ignored) {
+            }
+            resizeWebViewForIme(d, imePx);
+        });
     }
 
     /**
@@ -215,6 +283,18 @@ public class MainActivity extends BridgeActivity {
 
         int curH = decor.getHeight();
         int screenH = getRealScreenHeight();
+
+        // ── 交叉校验（专治「键盘收起后 insets 赖着不归零」的 ROM）──
+        // 只有当系统确实在帮我们缩窗口（adjustResize 生效）时，才能用 decor 高度反推键盘状态：
+        //   · 键盘弹起 → decor 明显变矮  → 记下 systemResizesWindow = true
+        //   · 窗口已恢复满屏，insets 却还报着键盘高 → 键盘其实早收起了，直接当 0 处理
+        // 反例（系统不缩窗口，decor 始终满屏）不会进这条分支，所以不会把弹起的键盘误判成收起。
+        if (imePx > 0 && curH > 0 && fullHeightPx > 0 && curH < fullHeightPx - dpToPx(40)) {
+            systemResizesWindow = true;
+        }
+        if (imePx > 0 && systemResizesWindow && curH > 0 && curH >= fullHeightPx - dpToPx(6)) {
+            imePx = 0;
+        }
 
         if (imePx <= 0) {
             // 键盘收起：只有当 decor 高度确实是"整屏"时才当成新基准。
@@ -267,6 +347,12 @@ public class MainActivity extends BridgeActivity {
         if (lp == null || lp.height == wanted) return;
         lp.height = wanted;
         webView.setLayoutParams(lp);
+    }
+
+    /** dp → px（density 在 onCreate 里已经取好） */
+    private int dpToPx(float dp) {
+        float d = density > 0 ? density : 3f;
+        return Math.round(dp * d);
     }
 
     /** 整屏物理高度（含状态栏 / 导航栏），不受 adjustResize 影响，只用来做交叉校验 */
