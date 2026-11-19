@@ -83,11 +83,48 @@ jobs:
       - name: 同步 Web 资源到 Android
         run: npx cap sync android
 
+      # CI 每次都是全新 clone，Capacitor 现生成的 debug 签名每次都不一样，
+      # 结果就是：用户装新版必须先卸载旧版，而卸载会清空 App 里的角色和聊天记录。
+      # 这里把 keystore 固定下来、提交进仓库：以后所有构建都用同一把钥匙，
+      # 新版可以直接覆盖安装，数据不丢。只在第一次运行时生成，之后一直复用。
+      - name: 固定签名（以后升级可覆盖安装，不丢数据）
+        run: |
+          KS=".github/keystore/debug.keystore"
+          mkdir -p .github/keystore "$HOME/.android"
+          if [ ! -f "$KS" ]; then
+            echo "首次构建：生成固定 keystore 并提交进仓库"
+            keytool -genkeypair -v \
+              -keystore "$KS" -storetype PKCS12 -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass android -keypass android \
+              -dname "CN=Android Debug,O=Android,C=US"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -f "$KS"
+            # [skip ci] 防止这次提交把流水线再触发一遍
+            git commit -m "chore: 固定 debug 签名 keystore，保证以后升级可覆盖安装 [skip ci]"
+            git push || echo "::warning::keystore 提交失败，本次构建签名仍不固定"
+          else
+            echo "使用仓库里已有的固定 keystore"
+          fi
+          cp "$KS" "$HOME/.android/debug.keystore"
+          ls -l "$HOME/.android/debug.keystore"
+
       - name: 编译 Debug APK
         working-directory: android
         run: |
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: 核对签名与 targetSdk（写进日志便于排查）
+        run: |
+          APK=android/app/build/outputs/apk/debug/app-debug.apk
+          BT=$(ls -d "$ANDROID_SDK_ROOT"/build-tools/* 2>/dev/null | tail -n1)
+          echo "build-tools: $BT"
+          # 签名指纹每次都一样，才说明「覆盖安装不丢数据」这条生效了
+          "$BT/apksigner" verify --print-certs "$APK" 2>&1 | head -n 5 || true
+          # targetSdk 必须是 34，35 会让系统强制 edge-to-edge，键盘就会挡住输入框
+          "$BT/aapt2" dump badging "$APK" 2>/dev/null | grep -E "targetSdkVersion|^package: name" || true
 
       - name: 检查产物并准备两种打包形式
         run: |
