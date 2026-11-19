@@ -3,6 +3,7 @@ package com.chachaji.app;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,13 @@ import android.webkit.WebView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.getcapacitor.BridgeActivity;
+
+import java.util.List;
 
 /**
  * 叉叉机 Android 外壳。
@@ -57,6 +61,21 @@ public class MainActivity extends BridgeActivity {
      * WebView 只剩屏幕上方很窄的一条，下面空出整块深色（这就是用户反馈的"深色背景特别大一块"）。
      */
     private int fullHeightPx = 0;
+
+    /**
+     * 键盘弹出 / 收起的动画是否正在进行。
+     *
+     * 为什么要这个标志：onApplyWindowInsets 在键盘动画【刚开始】的那一刻就把最终 IME 高度
+     * 给我们了。如果这时立刻把 WebView 压到最终高度，键盘本体还要滑 200~300ms 才上来，
+     * 中间这段时间 WebView 底下就是空的 —— 露出的正是窗口背景，"深色一大块"就是这么来的。
+     * 所以动画期间高度改由 WindowInsetsAnimationCompat 每帧插值推进（见 setupImeAnimation）。
+     */
+    private boolean imeAnimating = false;
+    /** 这一次键盘动画起始 / 结束时的 IME 高度（px），用来按动画进度插值 */
+    private int animStartIme = 0;
+    private int animEndIme = 0;
+    /** 上一次 onProgress 的时间戳，用来识别"动画回调中途断了"，避免卡在 imeAnimating=true */
+    private long lastAnimTick = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,14 +121,83 @@ public class MainActivity extends BridgeActivity {
         ViewCompat.setOnApplyWindowInsetsListener(window.getDecorView(), (v, insets) -> {
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-            // 键盘高度 → 压缩 WebView 真实高度（逐帧跟随键盘动画）。
-            // 这是本机唯一有效的机制，别删（见类注释里的三条对比）。
-            resizeWebViewForIme(window.getDecorView(), ime.bottom);
+            // 动画回调中途断了（个别 ROM 会这样）→ 退化成老路，否则 WebView 永远不缩、输入框被键盘盖住
+            if (imeAnimating && SystemClock.uptimeMillis() - lastAnimTick > 500) {
+                imeAnimating = false;
+            }
+            // 键盘高度 → 压缩 WebView 真实高度。这是本机唯一有效的机制，别删（见类注释三条对比）。
+            // 但动画进行中不能在这里抢先设成最终值，否则 WebView 先缩、键盘后到，中间露出窗口深色。
+            // 动画期间的高度由 setupImeAnimation 的 onProgress 逐帧推进。
+            // 另外这里要延迟一帧：动画的 onStart 是在同一次 insets 分发里发生的，
+            // 立刻压会把高度先跳到终点，紧接着第一帧 onProgress 又把它拉回起点 → 闪一下。
+            final int imeBottom = ime.bottom;
+            final View decorView = window.getDecorView();
+            decorView.post(() -> {
+                if (!imeAnimating) resizeWebViewForIme(decorView, imeBottom);
+            });
             // 刘海高度 / 键盘开合 → 同步给页面
             pushInsetVars(cut.top, cut.bottom, ime.bottom);
             return insets;
         });
+        // 让 WebView 高度跟着键盘弹出/收起动画逐帧走，和键盘严丝合缝
+        setupImeAnimation(window.getDecorView());
         ViewCompat.requestApplyInsets(window.getDecorView());
+    }
+
+    /**
+     * WebView 高度逐帧跟随键盘动画。
+     *
+     * Android 11+ 的键盘是带动画的，onApplyWindowInsets 只在开头/结尾给出终值，
+     * 中间过程要靠 WindowInsetsAnimationCompat 的 onProgress 每帧回调（官方就是让开发者这样做）。
+     * 拿 bounds 的起止高度 + getInterpolatedFraction() 自己插值，比直接读 insets 更稳 ——
+     * 有些 ROM 在 onProgress 里返回的 insets 仍是终值，插值法不受影响。
+     *
+     * Android 10 及以下没有这套 API，回调不会触发，走 onApplyWindowInsets 的老路即可。
+     */
+    private void setupImeAnimation(View decorView) {
+        ViewCompat.setWindowInsetsAnimationCallback(decorView,
+                new WindowInsetsAnimationCompat.Callback(
+                        WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                    @Override
+                    public WindowInsetsAnimationCompat.BoundsCompat onStart(
+                            WindowInsetsAnimationCompat animation,
+                            WindowInsetsAnimationCompat.BoundsCompat bounds) {
+                        if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                            imeAnimating = true;
+                            animStartIme = Math.max(0, bounds.getLowerBound().bottom);
+                            animEndIme = Math.max(0, bounds.getUpperBound().bottom);
+                        }
+                        return bounds;
+                    }
+
+                    @Override
+                    public WindowInsetsCompat onProgress(WindowInsetsCompat insets,
+                                                         List<WindowInsetsAnimationCompat> running) {
+                        if (!imeAnimating || running == null) return insets;
+                        for (int i = 0; i < running.size(); i++) {
+                            WindowInsetsAnimationCompat anim = running.get(i);
+                            if (anim == null) continue;
+                            if ((anim.getTypeMask() & WindowInsetsCompat.Type.ime()) == 0) continue;
+                            float f = anim.getInterpolatedFraction();
+                            if (f < 0f) f = 0f;
+                            if (f > 1f) f = 1f;
+                            int curIme = Math.round(animStartIme + (animEndIme - animStartIme) * f);
+                            lastAnimTick = SystemClock.uptimeMillis();
+                            applyWebViewHeight(curIme);
+                            break;
+                        }
+                        return insets;
+                    }
+
+                    @Override
+                    public void onEnd(WindowInsetsAnimationCompat animation) {
+                        if ((animation.getTypeMask() & WindowInsetsCompat.Type.ime()) != 0) {
+                            imeAnimating = false;
+                            // 收尾对齐到动画终点，避免最后一帧差几个像素
+                            applyWebViewHeight(animEndIme);
+                        }
+                    }
+                });
     }
 
     /**
@@ -149,10 +237,35 @@ public class MainActivity extends BridgeActivity {
         }
         if (fullHeightPx <= 0) return;
 
+        applyWebViewHeight(imePx);
+    }
+
+    /**
+     * 只负责"把 WebView 高度设成 全屏高 - 键盘高"，不碰基准。
+     * 键盘动画期间每帧都会调它（onProgress），所以必须够轻：算出同样的值就直接 return。
+     *
+     * 双保险：如果系统自己（adjustResize）已经把窗口逐帧缩到目标高度了，
+     * 就把 WebView 设成 MATCH_PARENT 跟着窗口走 —— 避免我们和系统各缩一次、两边错帧抖动。
+     */
+    private void applyWebViewHeight(int imePx) {
+        if (webView == null || fullHeightPx <= 0) return;
         int targetH = Math.max(1, fullHeightPx - Math.max(0, imePx));
+
+        int decorH = 0;
+        try {
+            Window w = getWindow();
+            if (w != null) decorH = w.getDecorView().getHeight();
+        } catch (Throwable ignored) {
+        }
+        int wanted = targetH;
+        if (decorH > 0 && Math.abs(decorH - targetH) <= 4) {
+            // 系统已经缩到位 → 让 WebView 跟着窗口走，别再单独钉死高度
+            wanted = ViewGroup.LayoutParams.MATCH_PARENT;
+        }
+
         ViewGroup.LayoutParams lp = webView.getLayoutParams();
-        if (lp == null || lp.height == targetH) return;
-        lp.height = targetH;
+        if (lp == null || lp.height == wanted) return;
+        lp.height = wanted;
         webView.setLayoutParams(lp);
     }
 
