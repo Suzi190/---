@@ -1,0 +1,12 @@
+{
+  "appId": "com.chachaji.app",
+  "appName": "叉叉机",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#000000",
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": false,
+    "captureInput": true
+  }
+}

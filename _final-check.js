@@ -64,6 +64,19 @@ console.log('  P5 group: no dead forgetting=  = ' + cnt(gs, 'forgetting=') + '  
 console.log('  P5 group: keeps retentionTier  = ' + cnt(gs, 'retentionTier:tier') + '  (expect 1)');
 
 console.log('');
+console.log('=== 4d. DOM id uniqueness (index.html) ===');
+const HTML_PATH = 'D:/叉叉机/叉叉机/index.html';
+const ih = load(HTML_PATH);
+const allIds = [...ih.matchAll(/\sid=["']([^"']+)["']/g)].map(m => m[1]);
+const idMap = Object.create(null);
+for (const x of allIds) idMap[x] = (idMap[x] || 0) + 1;
+const dupIds = Object.keys(idMap).filter(k => idMap[k] > 1);
+console.log('  total ids                      = ' + allIds.length);
+console.log('  duplicate ids                  = ' + dupIds.length + '  (expect 0)' + (dupIds.length ? ' -> ' + dupIds.join(', ') : ''));
+console.log('  qzone diary title id           = ' + cnt(ih, 'id="qzone-diary-detail-title"') + '  (expect 1)');
+console.log('  user diary title id            = ' + cnt(ih, 'id="diary-detail-title"') + '  (expect 1)');
+
+console.log('');
 console.log('=== 5. chinese keyword regression (vs backups) ===');
 const pairs = [
   ['app-init.js', 'app-init.beforeP1.js'],
