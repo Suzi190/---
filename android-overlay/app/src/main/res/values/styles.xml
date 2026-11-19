@@ -17,7 +17,11 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
 
-        <!-- 系统栏透明：配合 MainActivity 的 setDecorFitsSystemWindows(false) -->
+        <!-- 真全屏：主题层直接隐藏状态栏，避免 App 启动瞬间状态栏闪一下。
+             （MainActivity.onWindowFocusChanged 里再压一次，防止切回前台时冒出来） -->
+        <item name="android:windowFullscreen">true</item>
+
+        <!-- 系统栏透明 + 关闭对比度遮罩：边缘滑动临时调出系统栏时不会出现灰条 -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

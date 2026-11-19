@@ -162,6 +162,24 @@ if (fs.existsSync(iconSrc)) {
   console.log('[patch-android] ! 未找到 icon-512.png，沿用默认图标');
 }
 
+// ---------- 3b. targetSdk 降到 34 ----------
+// Android 15 起，targetSdk>=35 的应用会被强制 edge-to-edge，系统的 adjustResize 随之失效：
+// 键盘弹出时窗口不再缩小 → WebView 高度不变 → innerHeight 不变 → 底部输入框被键盘盖住。
+// 这就是前几版一直「键盘挡住输入框」的根因，光在 Java 里写 insets 补丁是救不回来的。
+// 降到 34 后恢复传统 adjustResize。这个包不上架 Play 商店，不存在 targetSdk 合规问题。
+const varsGradle = path.join(ANDROID, 'variables.gradle');
+if (fs.existsSync(varsGradle)) {
+  const before = fs.readFileSync(varsGradle, 'utf8');
+  const after = before.replace(/(targetSdkVersion\s*=\s*)\d+/, (m, p1) => p1 + '34');
+  if (after !== before) {
+    fs.writeFileSync(varsGradle, after, 'utf8');
+    console.log('[patch-android] targetSdkVersion 已降到 34（恢复系统 adjustResize）');
+  }
+  if (!/targetSdkVersion\s*=\s*34/.test(fs.readFileSync(varsGradle, 'utf8'))) {
+    die('variables.gradle 里 targetSdkVersion 改不动');
+  }
+}
+
 // ---------- 4. 校验 ----------
 console.log('[patch-android] 校验关键文件 ...');
 const MUST = [
@@ -176,7 +194,8 @@ if (missing.length) die('缺少文件：' + missing.join(', '));
 const mainJava = fs.readFileSync(path.join(ANDROID, MUST[0]), 'utf8');
 if (!mainJava.includes('MixNativeBridgePlugin.class')) die('MainActivity 未注册 MixNativeBridgePlugin');
 if (!mainJava.includes('setDecorFitsSystemWindows')) die('MainActivity 缺少全屏逻辑');
-if (!mainJava.includes('setPadding')) die('MainActivity 缺少键盘 insets 逻辑');
+if (!mainJava.includes('hideSystemBars')) die('MainActivity 缺少隐藏系统栏逻辑');
+if (!mainJava.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) die('MainActivity 未设置系统栏临时滑出行为');
 
 const pluginJava = fs.readFileSync(path.join(ANDROID, MUST[1]), 'utf8');
 const REQUIRED_METHODS = [
@@ -202,11 +221,11 @@ if (actMatch) {
   const full = path.join(ANDROID, rel);
   if (!fs.existsSync(full)) die('Manifest 指向的 Activity 不存在：' + rel);
   const code = fs.readFileSync(full, 'utf8');
-  if (!code.includes('setPadding')) die('Manifest 指向的 Activity 不是我们改过的版本（缺键盘逻辑）：' + rel);
+  if (!code.includes('hideSystemBars')) die('Manifest 指向的 Activity 不是我们改过的版本（缺隐藏系统栏逻辑）：' + rel);
   if (!code.includes('MixNativeBridgePlugin.class')) die('该 Activity 没有注册 MixNativeBridge 插件：' + rel);
   console.log('[patch-android] Activity 校验通过：' + cls);
 } else {
   die('Manifest 里找不到 <activity android:name=...>');
 }
 
-console.log('[patch-android] ✓ 全部通过（含 10 个插件方法、通知权限、键盘 adjustResize、Activity 指向）');
+console.log('[patch-android] ✓ 全部通过（含 10 个插件方法、通知权限、隐藏系统栏、targetSdk 34 恢复 adjustResize、Activity 指向）');
