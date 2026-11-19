@@ -5,6 +5,10 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# 发布 Release 需要写权限，不加这一步会 403
+permissions:
+  contents: write
+
 jobs:
   build:
     name: 打包 叉叉机 APK
@@ -111,3 +115,20 @@ jobs:
           path: dist/chachaji.apk.txt
           if-no-files-found: error
           retention-days: 30
+
+      # Artifact 下载必须登录 GitHub，手机上下不了。
+      # Release 是公开直链，手机浏览器点开就能下，这里同时放两种后缀各一份。
+      - name: 发布到 Release（手机点开直接下）
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view latest > /dev/null 2>&1; then
+            echo "Release 'latest' 已存在，直接覆盖其中的安装包"
+          else
+            gh release create latest \
+              --title "叉叉机 APK（最新构建）" \
+              --notes "手机下载 chachaji.apk.txt，然后把文件名末尾的 .txt 去掉，就得到可以安装的 APK。"
+          fi
+          gh release upload latest dist/chachaji.apk.txt --clobber
+          gh release upload latest dist/app-debug.apk --clobber
+          echo "下载页: $(gh release view latest --json url --jq .url)"
