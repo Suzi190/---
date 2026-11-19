@@ -17,9 +17,9 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
 
-        <!-- 真全屏：主题层直接隐藏状态栏，避免 App 启动瞬间状态栏闪一下。
-             （MainActivity.onWindowFocusChanged 里再压一次，防止切回前台时冒出来） -->
-        <item name="android:windowFullscreen">true</item>
+        <!-- 注意：这里【不要】加 android:windowFullscreen。
+             部分机型会因此把窗口限制在刘海区之外，顶部直接出一条纯黑边（上一版就是这么翻车的）。
+             状态栏交给 MainActivity.hideSystemBars() 隐藏，配合 edge-to-edge 才能让内容真正铺到屏幕边缘。 -->
 
         <!-- 系统栏透明 + 关闭对比度遮罩：边缘滑动临时调出系统栏时不会出现灰条 -->
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>

@@ -4,6 +4,8 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -19,26 +21,27 @@ import com.getcapacitor.BridgeActivity;
 /**
  * 叉叉机 Android 外壳。
  *
- * 只做两件事，都交给系统，不自己造轮子：
+ * ── 全屏 ──
+ * 用 edge-to-edge，WebView 铺满整块屏幕：状态栏、导航栏、刘海区全部用上，一条黑边都不留。
+ * 状态栏和导航栏本身是隐藏的，需要时从屏幕边缘滑一下才会临时出来。
+ * 页面顶部的标题栏靠原生传下去的刘海高度（--sat）自己避让摄像头，背景色仍然铺到刘海区。
  *
- *  1. 隐藏状态栏 / 导航栏（真全屏），并允许内容画到刘海区。
- *  2. 键盘：完全依赖系统的 adjustResize。
- *
- * 为什么不用 edge-to-edge + 自己算 IME insets：
- *  - edge-to-edge（setDecorFitsSystemWindows(false)）会让系统的 adjustResize 失效，
- *    键盘弹出时窗口不再缩小，底部输入框必然被盖住。
- *  - 之前试过监听 insets 再对 WebView setPadding，也是错的：padding 只裁剪绘制区域，
- *    不会改变 WebView 内部 viewport，window.innerHeight 不变，页面里的输入栏根本不会动。
- *
- * 现在 targetSdk 固定为 34（见 scripts/patch-android.js），Android 15 不会强制 edge-to-edge，
- * adjustResize 恢复正常：键盘弹出 → 窗口变矮 → WebView 真的变小 → innerHeight 变小 →
- * 底部输入栏自动浮到键盘上沿。全程跟随键盘动画逐帧联动，不需要任何 hack。
+ * ── 键盘 ──
+ * edge-to-edge 会让系统的 adjustResize 失效（窗口不再缩小），所以键盘只能自己处理。
+ * 但必须用正确的方式：改 WebView 的【真实高度】，绝不可以用 setPadding。
+ *   · setPadding 只裁剪绘制区域，WebView 内部的 Chromium viewport 尺寸不变，
+ *     window.innerHeight 不变，页面里 position:fixed 的输入栏纹丝不动 —— 前几版就栽在这。
+ *   · 改 layoutParams.height 会触发 onSizeChanged → viewport 真的变矮 → innerHeight 变小 →
+ *     底部输入栏自动浮到键盘上沿。
+ * 系统键盘动画期间 IME insets 是逐帧回调的，所以 WebView 高度也是逐帧变化的，
+ * 输入栏和键盘同步升降，不会出现「键盘弹完再跳一下」。
  */
 public class MainActivity extends BridgeActivity {
 
     private WebView webView;
     private int lastCutTopCss = -1;
     private int lastCutBottomCss = -1;
+    private int lastImeFlag = -1;
     private float density = 3f;
 
     @Override
@@ -51,8 +54,10 @@ public class MainActivity extends BridgeActivity {
         DisplayMetrics dm = getResources().getDisplayMetrics();
         density = dm.density > 0 ? dm.density : 3f;
 
-        // 保持传统的 decorFits 行为，这是 adjustResize 能生效的前提
-        WindowCompat.setDecorFitsSystemWindows(window, true);
+        // 关键：内容铺满整块屏幕（含状态栏 / 导航栏 / 刘海区）。
+        // 一旦这里改成 true，WebView 就不再延伸到屏幕边缘，刘海那片露出窗口背景，
+        // 整条就是纯黑的 —— 上一版的「不全屏、刘海区变黑」就是这么来的。
+        WindowCompat.setDecorFitsSystemWindows(window, false);
 
         // 允许内容绘制到刘海（短边）区域，否则刘海两侧会留黑条
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -62,7 +67,7 @@ public class MainActivity extends BridgeActivity {
             window.setAttributes(lp);
         }
 
-        // 系统栏透明 + 关闭对比度遮罩：隐藏时无异色，边缘滑动临时调出时也不会出现灰条
+        // 系统栏透明 + 关闭对比度遮罩：隐藏时无异色，边缘滑出时也不会压一层灰
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -79,14 +84,37 @@ public class MainActivity extends BridgeActivity {
             webView.setBackgroundColor(Color.BLACK);
         }
 
-        // 状态栏和导航栏都藏起来了，但刘海仍然占地方：把刘海高度告诉 JS，
-        // 让页面顶部内容（标题栏、返回按钮）自动避开摄像头。
+        final Window win = window;
         ViewCompat.setOnApplyWindowInsetsListener(window.getDecorView(), (v, insets) -> {
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
             Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-            pushCutoutToJs(cut.top, cut.bottom);
+            // 键盘高度 → 压缩 WebView 真实高度（逐帧跟随键盘动画）
+            resizeWebViewForIme(v, ime.bottom);
+            // 刘海高度 / 键盘开合 → 同步给页面
+            pushInsetVars(cut.top, cut.bottom, ime.bottom);
             return insets;
         });
         ViewCompat.requestApplyInsets(window.getDecorView());
+    }
+
+    /**
+     * 把 WebView 的真实高度压掉键盘高度。
+     *
+     * 每次 insets 回调都重新算一遍（不是只在键盘变化时），这样旋转屏幕、分屏、
+     * 从后台切回来之后高度都能自动修正，不会残留错误值。
+     */
+    private void resizeWebViewForIme(View decor, int imePx) {
+        if (webView == null) return;
+        int fullH = decor.getHeight();
+        if (fullH <= 0) {
+            fullH = getResources().getDisplayMetrics().heightPixels;
+        }
+        if (fullH <= 0) return;
+        int targetH = Math.max(1, fullH - imePx);
+        ViewGroup.LayoutParams lp = webView.getLayoutParams();
+        if (lp == null || lp.height == targetH) return;
+        lp.height = targetH;
+        webView.setLayoutParams(lp);
     }
 
     /** 真正把状态栏和导航栏藏起来；用户从屏幕边缘滑动时可以临时调出来 */
@@ -104,8 +132,8 @@ public class MainActivity extends BridgeActivity {
     }
 
     /**
-     * 切回前台、弹窗关闭、键盘收起后，系统栏有可能自己冒出来，这里再压一次。
-     * 少了这一步，从后台切回来就会看到状态栏又出现了。
+     * 切回前台、弹窗关闭后系统栏有可能自己冒出来，这里再压一次。
+     * 少了这一步，从后台切回来就会看到状态栏又出现在刘海底下。
      */
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -113,15 +141,19 @@ public class MainActivity extends BridgeActivity {
         if (hasFocus) hideSystemBars();
     }
 
-    private void pushCutoutToJs(int cutTopPx, int cutBottomPx) {
+    private void pushInsetVars(int cutTopPx, int cutBottomPx, int imePx) {
         int topCss = Math.round(cutTopPx / density);
         int bottomCss = Math.round(cutBottomPx / density);
-        if (topCss == lastCutTopCss && bottomCss == lastCutBottomCss) return;
+        // 键盘只区分「开 / 关」两种状态，不逐帧推送，避免每帧都往 JS 里打字符串
+        int imeFlag = imePx > 0 ? 1 : 0;
+        if (topCss == lastCutTopCss && bottomCss == lastCutBottomCss && imeFlag == lastImeFlag) return;
         lastCutTopCss = topCss;
         lastCutBottomCss = bottomCss;
+        lastImeFlag = imeFlag;
         if (webView == null) return;
+        int imeCss = imeFlag == 1 ? Math.round(imePx / density) : 0;
         String js = "window.__ccjNativeInsets&&window.__ccjNativeInsets({top:" + topCss
-                + ",bottom:" + bottomCss + ",keyboard:0,density:" + density + "});";
+                + ",bottom:" + bottomCss + ",keyboard:" + imeCss + ",density:" + density + "});";
         try {
             webView.evaluateJavascript(js, null);
         } catch (Throwable ignored) {

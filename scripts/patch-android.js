@@ -194,7 +194,11 @@ if (missing.length) die('缺少文件：' + missing.join(', '));
 const mainJava = fs.readFileSync(path.join(ANDROID, MUST[0]), 'utf8');
 if (!mainJava.includes('MixNativeBridgePlugin.class')) die('MainActivity 未注册 MixNativeBridgePlugin');
 if (!mainJava.includes('setDecorFitsSystemWindows')) die('MainActivity 缺少全屏逻辑');
+if (!mainJava.includes('setDecorFitsSystemWindows(window, false)')) die('MainActivity 必须用 edge-to-edge（setDecorFitsSystemWindows(false)），改成 true 刘海区会变成一条纯黑边');
 if (!mainJava.includes('hideSystemBars')) die('MainActivity 缺少隐藏系统栏逻辑');
+if (!mainJava.includes('resizeWebViewForIme')) die('MainActivity 缺少键盘高度处理逻辑（resizeWebViewForIme）');
+// 防回退：setPadding 不改变 WebView 内部 viewport，innerHeight 不变，输入栏根本不会动
+if (mainJava.includes('webView.setPadding')) die('MainActivity 不能用 setPadding 处理键盘，必须改 layoutParams.height');
 if (!mainJava.includes('BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE')) die('MainActivity 未设置系统栏临时滑出行为');
 
 const pluginJava = fs.readFileSync(path.join(ANDROID, MUST[1]), 'utf8');
